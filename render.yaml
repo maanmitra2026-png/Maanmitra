@@ -69,13 +69,11 @@ services:
 
   # ---------------------------------------------------------------------------
   # 2. FRONTEND — React + Vite (Static Site)
-  #    SPA with client-side routing rewrite
+  #    SPA with client-side routing rewrite (served via Render Global CDN)
   # ---------------------------------------------------------------------------
   - type: web
     name: maanmitra-frontend
     runtime: static
-    region: virginia
-    plan: free                 # Static sites are free on Render
 
     rootDir: frontend
 
