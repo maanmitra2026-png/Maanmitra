@@ -41,11 +41,9 @@ services:
       - key: PYTHON_VERSION
         value: "3.11.9"
 
-      # ---- Database (Render-managed PostgreSQL) ----
+      # ---- Database (Existing Render PostgreSQL) ----
       - key: DATABASE_URL
-        fromDatabase:
-          name: maanmitra-db
-          property: connectionString
+        value: "postgresql://maanmitra_user:rciSwj9rBMHMePEeaGjHEJBuc8U8g7Gd@dpg-dbmh9vt9el5s73dpu9o0-a.virginia-postgres.render.com/maanmitra"
 
       # ---- Auth ----
       - key: JWT_SECRET
@@ -121,14 +119,3 @@ services:
       # Razorpay publishable key (safe to expose in frontend)
       - key: VITE_RAZORPAY_KEY_ID
         sync: false                  # Set manually in Render dashboard
-
-  # ---------------------------------------------------------------------------
-  # 3. DATABASE — Render-managed PostgreSQL
-  #    Region: virginia (matches backend service)
-  # ---------------------------------------------------------------------------
-databases:
-  - name: maanmitra-db
-    databaseName: maanmitra
-    user: maanmitra_user
-    region: virginia
-    plan: free                 # Upgrade to starter for production persistence
