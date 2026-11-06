@@ -14,27 +14,14 @@ services:
     name: maanmitra-backend
     runtime: python
     region: virginia          # Same region as the DB for lowest latency
-    plan: starter             # Use starter (not free) for persistent disk + no sleep
+    plan: free                # 100% Free plan — No credit card required!
     rootDir: backend
 
     buildCommand: pip install --no-cache-dir -r requirements.txt
 
-    # Uvicorn with websocket=websockets for full WS support (standard extra)
-    startCommand: >
-      uvicorn app.main:app
-      --host 0.0.0.0
-      --port $PORT
-      --workers 2
-      --ws websockets
-      --log-level info
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --ws websockets
 
     healthCheckPath: /api/v1/health
-
-    # Persistent disk for user-uploaded profile photos
-    disk:
-      name: maanmitra-uploads
-      mountPath: /app/uploads
-      sizeGB: 1
 
     envVars:
       # ---- Python runtime ----
