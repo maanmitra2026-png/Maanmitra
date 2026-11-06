@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 140" fill="none">
+  <g transform="translate(15, 10) scale(1.15)" fill="#D4AF7C">
+    <circle cx="21.9" cy="14.35" r="7.59" />
+    <circle cx="78.63" cy="12.89" r="7.53" />
+    <path d="M 60.07 21.9 L 55.83 20.84 L 49.47 26.14 L 42.05 20.84 L 37.81 22.96 L 36.75 29.33 L 49.47 42.05 L 61.13 31.45 L 62.19 24.02 Z" />
+    <path d="M 88.7 29.33 L 72.8 28.27 L 49.47 60.07 L 24.02 27.2 L 12.36 27.2 L 8.12 34.63 L 8.12 92.94 L 20.84 87.64 L 24.02 44.17 L 49.47 73.86 L 77.04 45.23 L 78.1 88.7 L 90.82 92.94 Z" />
+  </g>
+  <text x="145" y="72" font-family="'Manrope', 'DM Sans', sans-serif" font-size="34" font-weight="700" letter-spacing="6" fill="#D4AF7C">MANMITRA</text>
+  <text x="147" y="100" font-family="'DM Sans', sans-serif" font-size="13" font-weight="500" letter-spacing="1.5" fill="#F7F5ED" opacity="0.9">Connect Hearts, Live Together</text>
+</svg>
