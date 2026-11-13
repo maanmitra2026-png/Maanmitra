@@ -542,6 +542,28 @@ def create_registration_order(
         res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
         if res.status_code in [200, 201]:
             rz_order = res.json()
+            plink_url = None
+            try:
+                plink_payload = {
+                    "amount": amount_paise,
+                    "currency": "INR",
+                    "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
+                    "customer": {
+                        "name": user.full_name or "Maanmitra Partner",
+                        "email": user.email,
+                        "contact": getattr(user, "phone", "") or "9876543210"
+                    },
+                    "notify": {"sms": False, "email": False},
+                    "notes": {"purpose": "maanmitra_registration", "partner_id": str(profile.id), "user_id": str(user.id)},
+                    "callback_url": "https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding",
+                    "callback_method": "get"
+                }
+                plink_res = requests.post("https://api.razorpay.com/v1/payment_links", json=plink_payload, headers=headers, timeout=5)
+                if plink_res.status_code in [200, 201]:
+                    plink_url = plink_res.json().get("short_url")
+            except Exception as pe:
+                logger.warning(f"Could not create hosted payment link: {pe}")
+
             return {
                 "id": rz_order["id"],
                 "order_id": rz_order["id"],
@@ -551,6 +573,7 @@ def create_registration_order(
                 "razorpay_key": RAZORPAY_KEY,
                 "purpose": "registration",
                 "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
+                "payment_link_url": plink_url,
                 "is_mock": False
             }
         else:
@@ -695,6 +718,28 @@ def create_activation_order(
         res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
         if res.status_code in [200, 201]:
             rz_order = res.json()
+            plink_url = None
+            try:
+                plink_payload = {
+                    "amount": amount_paise,
+                    "currency": "INR",
+                    "description": "Maanmitra Training & Profile Activation Fee (₹499)",
+                    "customer": {
+                        "name": user.full_name or "Maanmitra Partner",
+                        "email": user.email,
+                        "contact": getattr(user, "phone", "") or "9876543210"
+                    },
+                    "notify": {"sms": False, "email": False},
+                    "notes": {"purpose": "maanmitra_activation", "partner_id": str(profile.id), "user_id": str(user.id)},
+                    "callback_url": "https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding",
+                    "callback_method": "get"
+                }
+                plink_res = requests.post("https://api.razorpay.com/v1/payment_links", json=plink_payload, headers=headers, timeout=5)
+                if plink_res.status_code in [200, 201]:
+                    plink_url = plink_res.json().get("short_url")
+            except Exception as pe:
+                logger.warning(f"Could not create hosted activation payment link: {pe}")
+
             return {
                 "id": rz_order["id"],
                 "order_id": rz_order["id"],
@@ -704,6 +749,7 @@ def create_activation_order(
                 "razorpay_key": RAZORPAY_KEY,
                 "purpose": "activation",
                 "description": "Maanmitra Training & Profile Activation Fee (₹499)",
+                "payment_link_url": plink_url,
                 "is_mock": False
             }
         else:

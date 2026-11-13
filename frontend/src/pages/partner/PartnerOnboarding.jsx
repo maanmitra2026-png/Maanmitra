@@ -716,6 +716,7 @@ export function PartnerOnboardingPaymentPage() {
   const [payLoading, setPayLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [hostedPayUrl, setHostedPayUrl] = useState('');
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -743,6 +744,27 @@ export function PartnerOnboardingPaymentPage() {
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
+  // Handle callback return from Razorpay hosted payment link
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pId = params.get('razorpay_payment_id');
+    const plinkStatus = params.get('razorpay_payment_link_status');
+    if (pId && (!plinkStatus || plinkStatus === 'paid')) {
+      const verifyUrl = `${API_BASE}/partner/onboarding/verify-registration-payment`;
+      fetch(verifyUrl, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ razorpay_payment_id: pId })
+      }).then(async (r) => {
+        if (r.ok) {
+          setSuccessMsg('Payment confirmed via Razorpay!');
+          await fetchStatus();
+          setTimeout(() => navigate('/partner/dashboard', { replace: true }), 1000);
+        }
+      }).catch(console.error);
+    }
+  }, [token, fetchStatus, navigate]);
+
   // Razorpay payment helper — Real Razorpay Checkout
   const doRazorpayPayment = async ({ createUrl, verifyUrl, amountLabel, description }) => {
     setErrorMsg('');
@@ -758,6 +780,10 @@ export function PartnerOnboardingPaymentPage() {
       }
       const order = await orderRes.json();
 
+      if (order.payment_link_url) {
+        setHostedPayUrl(order.payment_link_url);
+      }
+
       const rawOrderId = order.order_id || order.id || '';
       const isRealRazorpayOrder = rawOrderId && String(rawOrderId).startsWith('order_') && !String(rawOrderId).startsWith('order_mock_');
 
@@ -766,6 +792,10 @@ export function PartnerOnboardingPaymentPage() {
 
       const sdkLoaded = await loadRazorpay();
       if (!sdkLoaded || !window.Razorpay) {
+        if (order.payment_link_url) {
+          window.location.href = order.payment_link_url;
+          return;
+        }
         setErrorMsg('Razorpay payment gateway failed to load. Please check your network connection.');
         setPayLoading(false);
         return;
@@ -825,7 +855,13 @@ export function PartnerOnboardingPaymentPage() {
 
       rzp.on('payment.failed', function (resp) {
         setPayLoading(false);
-        setErrorMsg(resp?.error?.description || 'Payment transaction failed. Please retry.');
+        const desc = resp?.error?.description || '';
+        // If Razorpay blocks due to website mismatch, seamlessly redirect to Razorpay hosted payment link
+        if (order.payment_link_url && (desc.toLowerCase().includes('website') || desc.toLowerCase().includes('registered') || desc.toLowerCase().includes('match') || desc.toLowerCase().includes('blocked'))) {
+          window.location.href = order.payment_link_url;
+          return;
+        }
+        setErrorMsg(desc || 'Payment transaction failed. Please retry.');
       });
 
       rzp.open();
@@ -978,6 +1014,27 @@ export function PartnerOnboardingPaymentPage() {
               <CreditCard size={20} />
               {payLoading ? 'Processing...' : 'Pay ₹99 & Create Profile'}
             </button>
+
+            {hostedPayUrl && (
+              <a
+                href={hostedPayUrl}
+                style={{
+                  display: 'block',
+                  textAlign: 'center',
+                  marginTop: '12px',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: '#FFF9F5',
+                  border: '1.5px solid #D8B36A',
+                  color: '#50164F',
+                  fontWeight: '700',
+                  fontSize: '0.9rem',
+                  textDecoration: 'none'
+                }}
+              >
+                Pay via Direct Razorpay UPI Link (GPay / PhonePe / QR) &rarr;
+              </a>
+            )}
           </div>
 
         ) : nextStep === 'awaiting_zoom_schedule' ? (
@@ -1178,6 +1235,27 @@ export function PartnerOnboardingPaymentPage() {
                 <Zap size={20} />
                 {payLoading ? 'Processing...' : 'Pay ₹499 & Activate Now'}
               </button>
+
+              {hostedPayUrl && (
+                <a
+                  href={hostedPayUrl}
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    marginTop: '12px',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    background: '#FFF9F5',
+                    border: '1.5px solid #E91E63',
+                    color: '#D81B60',
+                    fontWeight: '700',
+                    fontSize: '0.9rem',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Pay via Direct Razorpay UPI Link (GPay / PhonePe / QR) &rarr;
+                </a>
+              )}
             </div>
           </div>
 
