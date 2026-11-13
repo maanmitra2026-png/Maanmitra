@@ -113,17 +113,20 @@ export default function PublicNavbar() {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        padding: '12px 20px',
+        padding: '10px 16px',
+        width: '100%',
+        boxSizing: 'border-box',
         transition: 'all 0.25s ease',
         background: scrolled ? 'rgba(253, 251, 249, 0.96)' : 'transparent',
         backdropFilter: scrolled ? 'blur(10px)' : 'none',
       }}
       role="banner"
     >
-      {/* Floating Pill Container matching reference layout */}
+      {/* Floating Pill Container matching reference layout with NO overflow */}
       <div
         style={{
-          maxWidth: '1280px',
+          maxWidth: '1360px',
+          width: '100%',
           margin: '0 auto',
           background: '#FFFFFF',
           borderRadius: '9999px',
@@ -131,13 +134,14 @@ export default function PublicNavbar() {
           boxShadow: scrolled
             ? '0 10px 30px rgba(74, 21, 75, 0.10)'
             : '0 4px 20px rgba(74, 21, 75, 0.05)',
-          padding: '8px 18px 8px 24px',
-          height: '66px',
+          padding: '6px 14px 6px 16px',
+          height: '62px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
           position: 'relative',
+          boxSizing: 'border-box',
         }}
       >
         {/* 1. Brand Logo with NEW Golden Emblem */}
@@ -151,7 +155,7 @@ export default function PublicNavbar() {
           }}
           aria-label="MAANMITRA Home"
         >
-          <MaanmitraOriginalLogo height={42} />
+          <MaanmitraOriginalLogo height={36} />
         </Link>
 
         {/* 2. Desktop Navigation Links */}
@@ -159,8 +163,8 @@ export default function PublicNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            marginLeft: '12px'
+            gap: '3px',
+            marginLeft: '8px'
           }}
           className="mm-nav-desktop-only"
         >
@@ -177,24 +181,26 @@ export default function PublicNavbar() {
                 >
                   <Link
                     to={link.path}
+                    className="mm-nav-link"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '7px 16px',
+                      padding: '5px 9px',
                       borderRadius: '9999px',
-                      fontSize: '0.88rem',
+                      fontSize: '0.81rem',
                       fontWeight: (active || servicesDropdownOpen) ? 600 : 500,
-                      color: (active || servicesDropdownOpen) ? '#4A154B' : '#4A154B',
+                      color: '#4A154B',
                       background: servicesDropdownOpen ? '#FAF0F6' : (active ? '#FAF0F6' : 'transparent'),
                       border: servicesDropdownOpen ? '1px solid #EEDBCF' : '1px solid transparent',
                       textDecoration: 'none',
+                      whiteSpace: 'nowrap',
                       transition: 'all 0.2s ease',
                     }}
                   >
                     <span>{link.label}</span>
                     <ChevronDown
-                      size={14}
+                      size={13}
                       style={{
                         opacity: 0.75,
                         transform: servicesDropdownOpen ? 'rotate(180deg)' : 'none',
@@ -208,8 +214,8 @@ export default function PublicNavbar() {
                     <div
                       style={{
                         position: 'absolute',
-                        bottom: '-10px',
-                        width: '24px',
+                        bottom: '-8px',
+                        width: '20px',
                         height: '2.5px',
                         background: '#D4AF77',
                         borderRadius: '2px',
@@ -225,15 +231,16 @@ export default function PublicNavbar() {
                         top: '100%',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        marginTop: '14px',
+                        marginTop: '12px',
                         background: '#FFFFFF',
-                        borderRadius: '22px',
+                        borderRadius: '20px',
                         boxShadow: '0 20px 50px rgba(74, 21, 75, 0.16)',
                         border: '1.5px solid #F0DCE8',
-                        padding: '18px 20px 20px',
-                        width: '630px',
+                        padding: '16px 18px 18px',
+                        width: '610px',
                         zIndex: 1020,
                         animation: 'fadeIn 0.2s ease',
+                        boxSizing: 'border-box'
                       }}
                     >
                       {/* Top Arrow Pointer Notch */}
@@ -272,19 +279,19 @@ export default function PublicNavbar() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '12px',
-                          marginBottom: '16px',
+                          marginBottom: '14px',
                         }}
                       >
-                        <div style={{ height: '2px', width: '36px', background: '#D4AF77', borderRadius: '2px' }} />
+                        <div style={{ height: '2px', width: '32px', background: '#D4AF77', borderRadius: '2px' }} />
                         <span style={{
                           color: '#4A154B',
-                          fontSize: '0.98rem',
+                          fontSize: '0.94rem',
                           fontWeight: 800,
                           letterSpacing: '0.3px',
                         }}>
                           Our Services
                         </span>
-                        <div style={{ height: '2px', width: '36px', background: '#D4AF77', borderRadius: '2px' }} />
+                        <div style={{ height: '2px', width: '32px', background: '#D4AF77', borderRadius: '2px' }} />
                       </div>
 
                       {/* 5 Cards Row */}
@@ -292,7 +299,7 @@ export default function PublicNavbar() {
                         style={{
                           display: 'grid',
                           gridTemplateColumns: 'repeat(5, 1fr)',
-                          gap: '10px',
+                          gap: '9px',
                         }}
                       >
                         {servicesCards.map((card) => {
@@ -307,8 +314,8 @@ export default function PublicNavbar() {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '12px 6px 10px',
-                                borderRadius: '14px',
+                                padding: '10px 5px 8px',
+                                borderRadius: '12px',
                                 background: '#FFFFFF',
                                 border: '1px solid #F4E8EE',
                                 textDecoration: 'none',
@@ -329,28 +336,28 @@ export default function PublicNavbar() {
                               {/* Icon Container */}
                               <div
                                 style={{
-                                  width: '42px',
-                                  height: '42px',
-                                  borderRadius: '12px',
+                                  width: '38px',
+                                  height: '38px',
+                                  borderRadius: '10px',
                                   background: card.bg,
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  marginBottom: '8px',
+                                  marginBottom: '6px',
                                   flexShrink: 0,
                                 }}
                               >
-                                <IconComp size={20} color={card.iconColor} />
+                                <IconComp size={18} color={card.iconColor} />
                               </div>
 
                               {/* Title */}
                               <div
                                 style={{
-                                  fontSize: '0.74rem',
+                                  fontSize: '0.72rem',
                                   fontWeight: 700,
                                   color: '#4A154B',
                                   lineHeight: 1.25,
-                                  minHeight: '28px',
+                                  minHeight: '26px',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
@@ -369,10 +376,10 @@ export default function PublicNavbar() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  marginTop: '8px',
+                                  marginTop: '6px',
                                 }}
                               >
-                                <ArrowRight size={10} color="#380C22" />
+                                <ArrowRight size={9} color="#380C22" />
                               </div>
                             </Link>
                           );
@@ -391,12 +398,13 @@ export default function PublicNavbar() {
               >
                 <Link
                   to={link.path}
+                  className="mm-nav-link"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    padding: active ? '7px 18px' : '7px 14px',
+                    padding: active ? '5px 14px' : '5px 9px',
                     borderRadius: '9999px',
-                    fontSize: '0.88rem',
+                    fontSize: '0.81rem',
                     fontWeight: active ? 600 : 500,
                     color: active ? '#FFFFFF' : '#4A154B',
                     background: active ? '#4A154B' : 'transparent',
@@ -414,12 +422,12 @@ export default function PublicNavbar() {
                   <span>{link.label}</span>
                 </Link>
 
-                {/* Active Indicator Underline for Home (matching screenshot) */}
+                {/* Active Indicator Underline for Home */}
                 {active && (
                   <div
                     style={{
-                      width: '20px',
-                      height: '2.5px',
+                      width: '18px',
+                      height: '2px',
                       background: '#D4AF77',
                       borderRadius: '2px',
                       marginTop: '2px',
@@ -432,7 +440,7 @@ export default function PublicNavbar() {
         </nav>
 
         {/* 3. Desktop Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} className="mm-nav-desktop-only">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }} className="mm-nav-desktop-only">
           {/* Circular Search Icon */}
           <Link
             to="/counselling"
@@ -440,45 +448,48 @@ export default function PublicNavbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '38px',
-              height: '38px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               color: '#4A154B',
               textDecoration: 'none',
               background: '#FFFFFF',
               border: '1.5px solid #EEDBCF',
-              boxShadow: '0 2px 8px rgba(74, 21, 75, 0.04)',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 2px 6px rgba(74, 21, 75, 0.04)',
+              transition: 'all 0.2s ease',
+              flexShrink: 0
             }}
             title="Search Professionals"
             aria-label="Search"
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#4A154B'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#EEDBCF'; }}
           >
-            <Search size={16} />
+            <Search size={15} />
           </Link>
 
           {/* User Auth or Login Pill */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Link
                 to={getDashboardPath()}
+                className="mm-btn-login"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 16px',
+                  gap: '5px',
+                  padding: '6px 14px',
                   borderRadius: '9999px',
-                  fontSize: '0.86rem',
+                  fontSize: '0.84rem',
                   fontWeight: 600,
                   color: '#4A154B',
                   border: '1.5px solid #4A154B',
                   background: '#FFFFFF',
                   textDecoration: 'none',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                <User size={14} />
+                <User size={13} />
                 <span>
                   {user.role === 'admin' ? 'Admin' : user.role === 'maanmitra_partner' ? 'Partner' : 'Portal'}
                 </span>
@@ -489,8 +500,8 @@ export default function PublicNavbar() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '34px',
-                  height: '34px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   border: '1px solid #EEDBCF',
                   background: 'transparent',
@@ -500,25 +511,27 @@ export default function PublicNavbar() {
                 title="Logout"
                 aria-label="Logout"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
               </button>
             </div>
           ) : (
             <Link
               to="/login"
+              className="mm-btn-login"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '7px 18px',
+                gap: '5px',
+                padding: '5px 12px',
                 borderRadius: '9999px',
-                fontSize: '0.88rem',
+                fontSize: '0.81rem',
                 fontWeight: 600,
                 color: '#4A154B',
                 border: '1.5px solid #4A154B',
                 background: '#FFFFFF',
                 textDecoration: 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#FAF2F7';
@@ -527,7 +540,7 @@ export default function PublicNavbar() {
                 e.currentTarget.style.background = '#FFFFFF';
               }}
             >
-              <User size={14} />
+              <User size={13} />
               <span>Login</span>
             </Link>
           )}
@@ -535,20 +548,22 @@ export default function PublicNavbar() {
           {/* Get Access - ₹499 -> Button */}
           <Link
             to="/user/subscribe"
+            className="mm-btn-access"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '8px 20px',
+              padding: '6px 14px',
               borderRadius: '9999px',
-              fontSize: '0.88rem',
+              fontSize: '0.81rem',
               fontWeight: 700,
               color: '#FFFFFF',
               background: '#4A154B',
               textDecoration: 'none',
               boxShadow: '0 4px 14px rgba(74, 21, 75, 0.22)',
               transition: 'all 0.2s',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#3B0E3C';
@@ -560,7 +575,7 @@ export default function PublicNavbar() {
             }}
           >
             <span>Get Access – ₹499</span>
-            <ArrowRight size={14} />
+            <ArrowRight size={13} />
           </Link>
         </div>
 
@@ -575,7 +590,7 @@ export default function PublicNavbar() {
             border: 'none',
             color: '#4A154B',
             cursor: 'pointer',
-            padding: '8px',
+            padding: '6px',
             display: 'none'
           }}
         >
@@ -634,7 +649,7 @@ export default function PublicNavbar() {
                   to={link.path}
                   onClick={() => setMobileMenuOpen(false)}
                   style={{
-                    fontSize: '0.98rem',
+                    fontSize: '0.96rem',
                     fontWeight: 600,
                     color: isActive(link.path) ? '#4A154B' : '#6B5767',
                     background: isActive(link.path) ? '#FAF2F7' : 'transparent',
@@ -691,9 +706,15 @@ export default function PublicNavbar() {
         </>
       )}
 
-      {/* Responsive CSS helper */}
+      {/* Responsive CSS for Smooth Sizing and Preventing Overflow */}
       <style>{`
-        @media (max-width: 1040px) {
+        @media (max-width: 1280px) {
+          .mm-nav-desktop-only { gap: 2px !important; }
+          .mm-nav-link { padding: 4px 6px !important; font-size: 0.77rem !important; }
+          .mm-btn-access { padding: 5px 10px !important; font-size: 0.77rem !important; }
+          .mm-btn-login { padding: 4px 9px !important; font-size: 0.77rem !important; }
+        }
+        @media (max-width: 1080px) {
           .mm-nav-desktop-only { display: none !important; }
           .mm-mobile-menu-toggle { display: block !important; }
         }

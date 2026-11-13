@@ -179,7 +179,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div style={{ background: '#FDFBF9', minHeight: '100vh', fontFamily: "'Outfit', 'Poppins', sans-serif" }}>
+    <div style={{ background: '#FDFBF9', minHeight: '100vh', width: '100%', overflowX: 'hidden', fontFamily: "'Outfit', 'Poppins', sans-serif" }}>
       {/* 1. Header Navigation */}
       <PublicNavbar />
 
@@ -190,8 +190,8 @@ export default function HomePage() {
         <section
           style={{
             position: 'relative',
-            padding: '28px 24px 34px',
-            maxWidth: '1280px',
+            padding: '24px 20px 28px',
+            maxWidth: '1360px',
             margin: '0 auto',
             overflow: 'hidden',
           }}
@@ -347,11 +347,11 @@ export default function HomePage() {
                     <h1
                       style={{
                         fontFamily: "'Playfair Display', Georgia, serif",
-                        fontSize: 'clamp(2.1rem, 3.8vw, 3.3rem)',
+                        fontSize: 'clamp(1.75rem, 2.7vw, 2.7rem)',
                         fontWeight: 800,
-                        lineHeight: 1.15,
+                        lineHeight: 1.18,
                         margin: '0 0 16px',
-                        letterSpacing: '-0.5px',
+                        letterSpacing: '-0.3px',
                       }}
                     >
                       <span style={{ display: 'block', color: '#4A154B' }}>{slide.headline1}</span>
@@ -518,40 +518,42 @@ export default function HomePage() {
                         }}
                       />
 
-                      {/* Sweeping Gold & Plum Wave Ribbon Graphic matching the design reference */}
-                      <svg
-                        viewBox="0 0 500 110"
-                        fill="none"
-                        preserveAspectRatio="none"
-                        style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '75px',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {/* Upper Gold Wave Ribbon */}
-                        <path
-                          d="M0 110 C 130 65, 270 100, 500 15 L 500 110 L 0 110 Z"
-                          fill="url(#heroGoldGradient)"
-                          opacity="0.9"
-                        />
-                        {/* Lower Deep Plum Wave Ribbon */}
-                        <path
-                          d="M0 110 C 160 85, 300 115, 500 45 L 500 110 L 0 110 Z"
-                          fill="#4A154B"
-                          opacity="0.95"
-                        />
-                        <defs>
-                          <linearGradient id="heroGoldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#C49A45" />
-                            <stop offset="50%" stopColor="#DFBF75" />
-                            <stop offset="100%" stopColor="#B8860B" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
+                      {/* Sweeping Gold & Plum Wave Ribbon Graphic (Slides 2 & 3 match Slide 1) */}
+                      {idx !== 0 && (
+                        <svg
+                          viewBox="0 0 500 110"
+                          fill="none"
+                          preserveAspectRatio="none"
+                          style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '75px',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          {/* Upper Gold Wave Ribbon */}
+                          <path
+                            d="M0 110 C 130 65, 270 100, 500 15 L 500 110 L 0 110 Z"
+                            fill="url(#heroGoldGradient)"
+                            opacity="0.9"
+                          />
+                          {/* Lower Deep Plum Wave Ribbon */}
+                          <path
+                            d="M0 110 C 160 85, 300 115, 500 45 L 500 110 L 0 110 Z"
+                            fill="#4A154B"
+                            opacity="0.95"
+                          />
+                          <defs>
+                            <linearGradient id="heroGoldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#C49A45" />
+                              <stop offset="50%" stopColor="#DFBF75" />
+                              <stop offset="100%" stopColor="#B8860B" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      )}
                     </div>
                   </div>
                 </div>

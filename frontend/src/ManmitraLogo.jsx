@@ -101,7 +101,7 @@ export function MaanmitraOriginalLogo({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 10,
+        gap: 8,
         cursor: onClick ? 'pointer' : 'default',
         textDecoration: 'none',
         ...style
