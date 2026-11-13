@@ -114,8 +114,7 @@ export function MaanmitraOriginalLogo({
           height: `${height}px`,
           width: 'auto',
           display: 'block',
-          objectFit: 'contain',
-          filter: 'drop-shadow(0 2px 4px rgba(74, 21, 75, 0.12))'
+          objectFit: 'contain'
         }}
       />
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

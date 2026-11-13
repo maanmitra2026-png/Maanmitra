@@ -125,17 +125,17 @@ export default function PublicNavbar() {
       {/* Floating Pill Container matching reference layout with NO overflow */}
       <div
         style={{
-          maxWidth: '1360px',
-          width: '100%',
+          maxWidth: '1280px',
+          width: '95%',
           margin: '0 auto',
           background: '#FFFFFF',
           borderRadius: '9999px',
-          border: '1.5px solid #F2E6DC',
+          border: '1.5px solid #F0E3D7',
           boxShadow: scrolled
             ? '0 10px 30px rgba(74, 21, 75, 0.10)'
-            : '0 4px 20px rgba(74, 21, 75, 0.05)',
-          padding: '6px 14px 6px 16px',
-          height: '62px',
+            : '0 4px 20px rgba(74, 21, 75, 0.06)',
+          padding: '6px 16px 6px 20px',
+          height: '64px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -155,7 +155,7 @@ export default function PublicNavbar() {
           }}
           aria-label="MAANMITRA Home"
         >
-          <MaanmitraOriginalLogo height={36} />
+          <MaanmitraOriginalLogo height={38} />
         </Link>
 
         {/* 2. Desktop Navigation Links */}
@@ -163,8 +163,7 @@ export default function PublicNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '3px',
-            marginLeft: '8px'
+            gap: '8px',
           }}
           className="mm-nav-desktop-only"
         >
@@ -181,14 +180,14 @@ export default function PublicNavbar() {
                 >
                   <Link
                     to={link.path}
-                    className="mm-nav-link"
+                    className="mm-header-nav-link"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '5px 9px',
+                      padding: '6px 13px',
                       borderRadius: '9999px',
-                      fontSize: '0.81rem',
+                      fontSize: '0.85rem',
                       fontWeight: (active || servicesDropdownOpen) ? 600 : 500,
                       color: '#4A154B',
                       background: servicesDropdownOpen ? '#FAF0F6' : (active ? '#FAF0F6' : 'transparent'),
@@ -198,13 +197,14 @@ export default function PublicNavbar() {
                       transition: 'all 0.2s ease',
                     }}
                   >
-                    <span>{link.label}</span>
+                    <span style={{ color: '#4A154B' }}>{link.label}</span>
                     <ChevronDown
                       size={13}
                       style={{
                         opacity: 0.75,
                         transform: servicesDropdownOpen ? 'rotate(180deg)' : 'none',
-                        transition: 'transform 0.2s ease'
+                        transition: 'transform 0.2s ease',
+                        color: '#4A154B'
                       }}
                     />
                   </Link>
@@ -398,15 +398,15 @@ export default function PublicNavbar() {
               >
                 <Link
                   to={link.path}
-                  className="mm-nav-link"
+                  className="mm-header-nav-link"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    padding: active ? '5px 14px' : '5px 9px',
+                    padding: active ? '7px 18px' : '6px 13px',
                     borderRadius: '9999px',
-                    fontSize: '0.81rem',
+                    fontSize: '0.85rem',
                     fontWeight: active ? 600 : 500,
-                    color: active ? '#FFFFFF' : '#4A154B',
+                    color: active ? '#FFFFFF !important' : '#4A154B',
                     background: active ? '#4A154B' : 'transparent',
                     textDecoration: 'none',
                     whiteSpace: 'nowrap',
@@ -419,7 +419,7 @@ export default function PublicNavbar() {
                     if (!active) e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <span>{link.label}</span>
+                  <span style={{ color: active ? '#FFFFFF' : '#4A154B' }}>{link.label}</span>
                 </Link>
 
                 {/* Active Indicator Underline for Home */}
@@ -448,8 +448,8 @@ export default function PublicNavbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '34px',
-              height: '34px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
               color: '#4A154B',
               textDecoration: 'none',
@@ -472,14 +472,14 @@ export default function PublicNavbar() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Link
                 to={getDashboardPath()}
-                className="mm-btn-login"
+                className="mm-header-btn-login"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '5px',
                   padding: '6px 14px',
                   borderRadius: '9999px',
-                  fontSize: '0.84rem',
+                  fontSize: '0.85rem',
                   fontWeight: 600,
                   color: '#4A154B',
                   border: '1.5px solid #4A154B',
@@ -517,14 +517,14 @@ export default function PublicNavbar() {
           ) : (
             <Link
               to="/login"
-              className="mm-btn-login"
+              className="mm-header-btn-login"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                padding: '5px 12px',
+                padding: '6px 16px',
                 borderRadius: '9999px',
-                fontSize: '0.81rem',
+                fontSize: '0.85rem',
                 fontWeight: 600,
                 color: '#4A154B',
                 border: '1.5px solid #4A154B',
@@ -548,14 +548,14 @@ export default function PublicNavbar() {
           {/* Get Access - ₹499 -> Button */}
           <Link
             to="/user/subscribe"
-            className="mm-btn-access"
+            className="mm-header-btn-access"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '7px 18px',
               borderRadius: '9999px',
-              fontSize: '0.81rem',
+              fontSize: '0.85rem',
               fontWeight: 700,
               color: '#FFFFFF',
               background: '#4A154B',
@@ -574,8 +574,8 @@ export default function PublicNavbar() {
               e.currentTarget.style.transform = 'none';
             }}
           >
-            <span>Get Access – ₹499</span>
-            <ArrowRight size={13} />
+            <span style={{ color: '#FFFFFF' }}>Get Access – ₹499</span>
+            <ArrowRight size={13} color="#FFFFFF" />
           </Link>
         </div>
 
@@ -706,15 +706,21 @@ export default function PublicNavbar() {
         </>
       )}
 
-      {/* Responsive CSS for Smooth Sizing and Preventing Overflow */}
+      {/* Responsive CSS for Clean Layout and Preventing Overlap/Squish */}
       <style>{`
-        @media (max-width: 1280px) {
-          .mm-nav-desktop-only { gap: 2px !important; }
-          .mm-nav-link { padding: 4px 6px !important; font-size: 0.77rem !important; }
-          .mm-btn-access { padding: 5px 10px !important; font-size: 0.77rem !important; }
-          .mm-btn-login { padding: 4px 9px !important; font-size: 0.77rem !important; }
+        .mm-header-nav-link {
+          text-decoration: none !important;
         }
-        @media (max-width: 1080px) {
+        .mm-header-nav-link span {
+          transition: color 0.2s ease;
+        }
+        @media (max-width: 1220px) {
+          .mm-nav-desktop-only { gap: 4px !important; }
+          .mm-header-nav-link { padding: 5px 9px !important; font-size: 0.81rem !important; }
+          .mm-header-btn-access { padding: 6px 13px !important; font-size: 0.81rem !important; }
+          .mm-header-btn-login { padding: 5px 12px !important; font-size: 0.81rem !important; }
+        }
+        @media (max-width: 1120px) {
           .mm-nav-desktop-only { display: none !important; }
           .mm-mobile-menu-toggle { display: block !important; }
         }
