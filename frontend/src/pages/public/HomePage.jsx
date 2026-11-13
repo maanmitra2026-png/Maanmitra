@@ -1,15 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Heart, Sparkles, Compass, Laptop, Headphones,
   ShieldCheck, Lock, Calendar, Users, ArrowRight,
-  Play, Check, Star, Crown, Video, User, X
+  Play, Check, Star, Crown, Video, User, X,
+  ChevronLeft, ChevronRight, MessageSquare, Phone
 } from 'lucide-react';
 import PublicNavbar from '../../components/layout/PublicNavbar';
 import PublicFooter from '../../components/layout/PublicFooter';
 
 export default function HomePage() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
+
+  const heroSlides = [
+    {
+      id: 1,
+      badge: 'EMOTIONAL WELLNESS | PERSONAL GROWTH | MEANINGFUL CONNECTIONS',
+      headline1: 'Build Meaningful Connections.',
+      headline2: 'Discover the Right Guidance.',
+      subheading: 'Connect with professionals and explore opportunities to grow with MAANMITRA.',
+      primaryBtnText: 'Explore Services',
+      primaryBtnLink: '/services',
+      secondaryBtnText: 'Become a Professional',
+      secondaryBtnLink: '/become-a-partner',
+      secondaryIcon: Users,
+      image: '/hero_slide_1.jpg',
+      imageAlt: 'Professional discovering guidance and meaningful connections with MAANMITRA',
+      features: [
+        { icon: ShieldCheck, title: 'Trusted', sub: 'Connections' },
+        { icon: Users, title: 'Professional', sub: 'Guidance' },
+        { icon: Star, title: 'Flexible', sub: 'Opportunities' },
+      ],
+    },
+    {
+      id: 2,
+      badge: 'VERIFIED MENTORS | 100% CONFIDENTIAL | REAL-TIME SESSIONS',
+      headline1: 'Your Companion for Wellness.',
+      headline2: 'Talk Freely, Heal Deeply.',
+      subheading: 'Instant live Chat, Voice Call, or HD Video with empathetic certified counsellors. Transparent per-minute billing.',
+      primaryBtnText: 'Find Counsellors',
+      primaryBtnLink: '/counselling',
+      secondaryBtnText: 'Get Access – ₹499',
+      secondaryBtnLink: '/user/subscribe',
+      secondaryIcon: ShieldCheck,
+      image: '/hero_slide_2.jpg',
+      imageAlt: 'Empathetic verified counsellor ready for private confidential session',
+      features: [
+        { icon: Lock, title: '100% Safe', sub: '& Confidential' },
+        { icon: Headphones, title: 'Instant Voice', sub: '& Video Calling' },
+        { icon: MessageSquare, title: 'Live Chat', sub: '₹5 / Minute' },
+      ],
+    },
+    {
+      id: 3,
+      badge: 'RELATIONSHIP GUIDANCE | LIFE COACHING | KUNDALI',
+      headline1: 'Navigate Life’s Crossroads.',
+      headline2: 'With Clarity & Peace of Mind.',
+      subheading: 'From modern relationship dynamics to personal growth and astrology guidance, find the answers you need.',
+      primaryBtnText: 'Discover Services',
+      primaryBtnLink: '/services',
+      secondaryBtnText: 'How It Works',
+      secondaryBtnLink: '/how-it-works',
+      secondaryIcon: Play,
+      image: '/hero_slide_3.jpg',
+      imageAlt: 'Harmonious relationship guidance and holistic emotional wellness',
+      features: [
+        { icon: Sparkles, title: 'Astrology', sub: '& Kundali' },
+        { icon: Heart, title: 'Couples', sub: 'Guidance' },
+        { icon: Crown, title: 'Personal', sub: 'Life Coaching' },
+      ],
+    },
+  ];
+
+  // 5-second auto-transition
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isHovered, heroSlides.length]);
+
+  const handlePrev = () => {
+    setCurrentSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  // Mobile swipe handlers
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (diff > 45) {
+      handleNext();
+    } else if (diff < -45) {
+      handlePrev();
+    }
+    setTouchStartX(null);
+  };
 
   const services = [
     {
@@ -87,188 +185,426 @@ export default function HomePage() {
 
       <main>
         {/* =========================================================
-            2. HERO SECTION
+            2. HERO SECTION — Auto-playing 3-Slide Carousel
             ========================================================= */}
-        <section style={{
-          position: 'relative',
-          padding: '40px 20px 30px',
-          maxWidth: '1240px',
-          margin: '0 auto',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            alignItems: 'center',
-            gap: '36px'
-          }}>
-            {/* Left Column: Headings & CTAs */}
-            <div style={{ zIndex: 2 }}>
-              {/* Category Badges */}
-              <div style={{
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                color: '#4A154B',
-                letterSpacing: '1.2px',
-                marginBottom: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '8px'
-              }}>
-                <span>EMOTIONAL WELLNESS</span>
-                <span style={{ color: '#D4AF77', fontWeight: 900 }}>|</span>
-                <span>PERSONAL GROWTH</span>
-                <span style={{ color: '#D4AF77', fontWeight: 900 }}>|</span>
-                <span>MEANINGFUL CONNECTIONS</span>
-              </div>
-
-              {/* Headline */}
-              <h1 style={{
-                fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
-                fontWeight: 800,
-                lineHeight: 1.18,
-                color: '#4A154B',
-                margin: '0 0 16px',
-                letterSpacing: '-0.5px'
-              }}>
-                Your Companion for
-                <span style={{ display: 'block', color: '#4A154B' }}>
-                  Emotional Wellness &amp;
-                </span>
-                <span style={{ display: 'block', color: '#4A154B' }}>
-                  Meaningful Connections
-                </span>
-              </h1>
-
-              {/* Gold Decorative Squiggle */}
-              <svg width="220" height="14" viewBox="0 0 220 14" fill="none" style={{ marginBottom: '18px', display: 'block' }}>
-                <path
-                  d="M2 9C30 3 60 14 90 8C120 2 150 13 180 7C195 4 210 10 218 6"
-                  stroke="#D4AF77"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-
-              {/* Subheading */}
-              <p style={{
-                fontSize: '1.05rem',
-                color: '#554252',
-                lineHeight: 1.6,
-                maxWidth: '460px',
-                marginBottom: '28px'
-              }}>
-                Expert support for relationships, life, career and personal growth.
-              </p>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <Link
-                  to="/user/subscribe"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '13px 26px',
-                    borderRadius: '9999px',
-                    background: '#4A154B',
-                    color: '#FFFFFF',
-                    fontWeight: 700,
-                    fontSize: '0.96rem',
-                    textDecoration: 'none',
-                    boxShadow: '0 4px 18px rgba(74, 21, 75, 0.28)',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <span>Get Access -- ₹499</span>
-                  <ArrowRight size={17} />
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => setVideoModalOpen(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 24px',
-                    borderRadius: '9999px',
-                    background: '#FFFFFF',
-                    color: '#4A154B',
-                    border: '1.5px solid #4A154B',
-                    fontWeight: 600,
-                    fontSize: '0.94rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <span style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: '#4A154B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Play size={12} color="#FFFFFF" fill="#FFFFFF" style={{ marginLeft: '2px' }} />
-                  </span>
-                  <span>How It Works</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Hero Visual Graphic with woman & coffee */}
-            <div style={{
-              position: 'relative',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: '480px',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                boxShadow: '0 16px 40px rgba(74, 21, 75, 0.12)'
-              }}>
-                <img
-                  src="/home_hero_right.jpg"
-                  alt="Companion for Emotional Wellness"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    display: 'block',
-                    objectFit: 'cover'
-                  }}
-                />
-              </div>
-
-              {/* Trailing Gold Heart Outline Flourish */}
-              <svg
-                width="64"
-                height="64"
-                viewBox="0 0 64 64"
-                fill="none"
-                style={{
-                  position: 'absolute',
-                  bottom: '-14px',
-                  right: '10px',
-                  pointerEvents: 'none'
-                }}
-              >
-                <path
-                  d="M32 50 C18 38, 6 26, 6 16 C6 8, 14 3, 22 3 C27 3, 31 6, 32 10 C33 6, 37 3, 42 3 C50 3, 58 8, 58 16 C58 26, 46 38, 32 50 Z"
-                  stroke="#D4AF77"
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
+        <section
+          style={{
+            position: 'relative',
+            padding: '28px 24px 34px',
+            maxWidth: '1280px',
+            margin: '0 auto',
+            overflow: 'hidden',
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          aria-label="MAANMITRA Highlights Carousel"
+        >
+          {/* Subtle Ambient Floating Petals / Decorative Accents */}
+          <div aria-hidden="true" style={{ position: 'absolute', top: '15%', left: '3%', pointerEvents: 'none', opacity: 0.7 }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C12 2 15 8 18 10C21 12 23 15 20 18C17 21 13 20 10 18C7 16 5 13 6 10C7 7 12 2 12 2Z" fill="#F8D3DC" opacity="0.85" />
+            </svg>
           </div>
+          <div aria-hidden="true" style={{ position: 'absolute', top: '65%', left: '46%', pointerEvents: 'none', opacity: 0.6 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C12 2 15 8 18 10C21 12 23 15 20 18C17 21 13 20 10 18C7 16 5 13 6 10C7 7 12 2 12 2Z" fill="#F4E2C7" opacity="0.85" />
+            </svg>
+          </div>
+          <div aria-hidden="true" style={{ position: 'absolute', top: '10%', right: '4%', pointerEvents: 'none', opacity: 0.7 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C12 2 15 8 18 10C21 12 23 15 20 18C17 21 13 20 10 18C7 16 5 13 6 10C7 7 12 2 12 2Z" fill="#F8D3DC" opacity="0.85" />
+            </svg>
+          </div>
+
+          {/* Previous Slide Arrow */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous slide"
+            style={{
+              position: 'absolute',
+              left: '6px',
+              top: '46%',
+              transform: 'translateY(-50%)',
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              border: '1.5px solid #EEDBCF',
+              boxShadow: '0 4px 16px rgba(74, 21, 75, 0.10)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#4A154B',
+              cursor: 'pointer',
+              zIndex: 10,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#4A154B';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#EEDBCF';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+            }}
+          >
+            <ChevronLeft size={22} />
+          </button>
+
+          {/* Next Slide Arrow */}
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next slide"
+            style={{
+              position: 'absolute',
+              right: '6px',
+              top: '46%',
+              transform: 'translateY(-50%)',
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              border: '1.5px solid #EEDBCF',
+              boxShadow: '0 4px 16px rgba(74, 21, 75, 0.10)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#4A154B',
+              cursor: 'pointer',
+              zIndex: 10,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#4A154B';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#EEDBCF';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+            }}
+          >
+            <ChevronRight size={22} />
+          </button>
+
+          {/* Carousel Slide Stage */}
+          <div style={{ position: 'relative', minHeight: '460px' }}>
+            {heroSlides.map((slide, idx) => {
+              const isActive = idx === currentSlide;
+              const isPast = idx < currentSlide;
+
+              return (
+                <div
+                  key={slide.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1.08fr 0.92fr',
+                    alignItems: 'center',
+                    gap: '36px',
+                    width: '100%',
+                    opacity: isActive ? 1 : 0,
+                    transform: isActive
+                      ? 'translateX(0)'
+                      : isPast
+                      ? 'translateX(-35px)'
+                      : 'translateX(35px)',
+                    transition: 'opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1), transform 0.65s cubic-bezier(0.25, 1, 0.5, 1)',
+                    pointerEvents: isActive ? 'auto' : 'none',
+                    position: isActive ? 'relative' : 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: isActive ? 2 : 1,
+                  }}
+                  className="mm-hero-grid"
+                >
+                  {/* Left Column: Headings & CTAs */}
+                  <div style={{ zIndex: 3, padding: '10px 0 10px 20px' }}>
+                    {/* Badge Pill */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '6px 14px',
+                        borderRadius: '9999px',
+                        border: '1px solid #EAD8C7',
+                        background: 'rgba(255, 255, 255, 0.85)',
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        color: '#4A154B',
+                        letterSpacing: '1px',
+                        marginBottom: '16px',
+                        boxShadow: '0 2px 8px rgba(74, 21, 75, 0.04)',
+                      }}
+                    >
+                      {slide.badge}
+                    </div>
+
+                    {/* Headline */}
+                    <h1
+                      style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: 'clamp(2.1rem, 3.8vw, 3.3rem)',
+                        fontWeight: 800,
+                        lineHeight: 1.15,
+                        margin: '0 0 16px',
+                        letterSpacing: '-0.5px',
+                      }}
+                    >
+                      <span style={{ display: 'block', color: '#4A154B' }}>{slide.headline1}</span>
+                      <span style={{ display: 'block', color: '#C49A45' }}>{slide.headline2}</span>
+                    </h1>
+
+                    {/* Subheading */}
+                    <p
+                      style={{
+                        fontSize: '1.05rem',
+                        color: '#554252',
+                        lineHeight: 1.6,
+                        maxWidth: '480px',
+                        marginBottom: '26px',
+                      }}
+                    >
+                      {slide.subheading}
+                    </p>
+
+                    {/* Action Buttons Row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '14px',
+                        flexWrap: 'wrap',
+                        marginBottom: '32px',
+                      }}
+                    >
+                      <Link
+                        to={slide.primaryBtnLink}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '13px 26px',
+                          borderRadius: '9999px',
+                          background: '#4A154B',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                          fontSize: '0.96rem',
+                          textDecoration: 'none',
+                          boxShadow: '0 4px 18px rgba(74, 21, 75, 0.28)',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#3B0E3C';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#4A154B';
+                          e.currentTarget.style.transform = 'none';
+                        }}
+                      >
+                        <span>{slide.primaryBtnText}</span>
+                        <ArrowRight size={16} />
+                      </Link>
+
+                      <Link
+                        to={slide.secondaryBtnLink}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 24px',
+                          borderRadius: '9999px',
+                          background: '#FFFFFF',
+                          color: '#4A154B',
+                          border: '1.5px solid #4A154B',
+                          fontWeight: 600,
+                          fontSize: '0.94rem',
+                          textDecoration: 'none',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#FAF2F7';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#FFFFFF';
+                        }}
+                      >
+                        <slide.secondaryIcon size={16} color="#4A154B" />
+                        <span>{slide.secondaryBtnText}</span>
+                      </Link>
+                    </div>
+
+                    {/* Trust Indicators Row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '20px',
+                        paddingTop: '20px',
+                        borderTop: '1px solid #EFE4DC',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {slide.features.map((feat, fIdx) => (
+                        <React.Fragment key={feat.title}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div
+                              style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '10px',
+                                background: '#FAF2EC',
+                                border: '1px solid #EEDBCF',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                              }}
+                            >
+                              <feat.icon size={18} color="#C49A45" />
+                            </div>
+                            <div style={{ fontSize: '0.85rem', lineHeight: 1.25 }}>
+                              <div style={{ fontWeight: 700, color: '#4A154B' }}>{feat.title}</div>
+                              <div style={{ color: '#6A5766' }}>{feat.sub}</div>
+                            </div>
+                          </div>
+                          {fIdx < slide.features.length - 1 && (
+                            <div
+                              style={{ width: '1px', height: '28px', background: '#E2D1C5' }}
+                              className="mm-trust-divider"
+                            />
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Hero Visual Graphic with Framing Wave Ribbons */}
+                  <div
+                    style={{
+                      position: 'relative',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '10px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        maxWidth: '540px',
+                        borderRadius: '28px',
+                        overflow: 'hidden',
+                        boxShadow: '0 20px 48px rgba(74, 21, 75, 0.14)',
+                        background: '#FFFFFF',
+                      }}
+                    >
+                      <img
+                        src={slide.image}
+                        alt={slide.imageAlt}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          display: 'block',
+                          objectFit: 'cover',
+                          maxHeight: '430px',
+                        }}
+                      />
+
+                      {/* Sweeping Gold & Plum Wave Ribbon Graphic matching the design reference */}
+                      <svg
+                        viewBox="0 0 500 110"
+                        fill="none"
+                        preserveAspectRatio="none"
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '75px',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        {/* Upper Gold Wave Ribbon */}
+                        <path
+                          d="M0 110 C 130 65, 270 100, 500 15 L 500 110 L 0 110 Z"
+                          fill="url(#heroGoldGradient)"
+                          opacity="0.9"
+                        />
+                        {/* Lower Deep Plum Wave Ribbon */}
+                        <path
+                          d="M0 110 C 160 85, 300 115, 500 45 L 500 110 L 0 110 Z"
+                          fill="#4A154B"
+                          opacity="0.95"
+                        />
+                        <defs>
+                          <linearGradient id="heroGoldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#C49A45" />
+                            <stop offset="50%" stopColor="#DFBF75" />
+                            <stop offset="100%" stopColor="#B8860B" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Clickable Pagination Indicators (3 Dots) */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '28px',
+            }}
+          >
+            {heroSlides.map((_, idx) => {
+              const isCurrent = idx === currentSlide;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  style={{
+                    cursor: 'pointer',
+                    padding: 0,
+                    width: isCurrent ? '26px' : '9px',
+                    height: '9px',
+                    borderRadius: '9999px',
+                    background: isCurrent ? '#4A154B' : '#FFFFFF',
+                    border: isCurrent ? 'none' : '1.5px solid #D4AF77',
+                    transition: 'all 0.3s ease',
+                    boxShadow: isCurrent ? '0 2px 8px rgba(74, 21, 75, 0.35)' : 'none',
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Responsive CSS Helper for Hero */}
+          <style>{`
+            @media (max-width: 900px) {
+              .mm-hero-grid {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+              }
+              .mm-trust-divider {
+                display: none !important;
+              }
+            }
+          `}</style>
         </section>
 
         {/* =========================================================
