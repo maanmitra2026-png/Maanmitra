@@ -75,9 +75,7 @@ export async function openRazorpayCheckout({
     throw new Error('Razorpay Key ID is not configured. Please contact support.');
   }
 
-  if (!order_id || String(order_id).startsWith('order_mock_')) {
-    throw new Error('Valid Razorpay order was not provided. Please retry.');
-  }
+  const isRealRazorpayOrder = order_id && String(order_id).startsWith('order_') && !String(order_id).startsWith('order_mock_');
 
   // Ensure amount is an integer in paise
   const numericAmount = Math.round(Number(amount));
@@ -88,7 +86,6 @@ export async function openRazorpayCheckout({
     currency: currency || 'INR',
     name,
     description,
-    order_id,
     image,
     prefill: {
       name: prefill.name || '',
@@ -109,12 +106,17 @@ export async function openRazorpayCheckout({
       if (onSuccess) {
         onSuccess({
           razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_signature: response.razorpay_signature
+          razorpay_order_id: response.razorpay_order_id || order_id || '',
+          razorpay_signature: response.razorpay_signature || ''
         });
       }
     }
   };
+
+  // Only attach order_id if it's a real server-generated Razorpay order
+  if (isRealRazorpayOrder) {
+    options.order_id = order_id;
+  }
 
   const rzp = new window.Razorpay(options);
 

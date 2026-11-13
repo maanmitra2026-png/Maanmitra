@@ -758,10 +758,9 @@ export function PartnerOnboardingPaymentPage() {
       }
       const order = await orderRes.json();
 
-      const orderId = order.order_id || order.id;
-      if (!orderId || String(orderId).startsWith('order_mock_')) {
-        throw new Error('Valid Razorpay order could not be generated. Please retry or contact support.');
-      }
+      const rawOrderId = order.order_id || order.id || '';
+      const isRealRazorpayOrder = rawOrderId && String(rawOrderId).startsWith('order_') && !String(rawOrderId).startsWith('order_mock_');
+
       const rawKey = order.razorpay_key || order.key_id || RAZORPAY_KEY;
       const resolvedKey = (rawKey && !rawKey.includes('mock') && !rawKey.includes('test')) ? rawKey : 'rzp_live_TwgPINXkMnFaPI';
 
@@ -772,13 +771,12 @@ export function PartnerOnboardingPaymentPage() {
         return;
       }
 
-      const rzp = new window.Razorpay({
+      const rzpOptions = {
         key: resolvedKey,
         amount: order.amount,
         currency: order.currency || 'INR',
         name: 'MAANMITRA',
         description,
-        order_id: orderId,
         image: '/manmitra-app-icon.png',
         handler: async (response) => {
           try {
@@ -786,9 +784,9 @@ export function PartnerOnboardingPaymentPage() {
               method: 'POST',
               headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
+                razorpay_order_id: response.razorpay_order_id || rawOrderId,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_signature: response.razorpay_signature || ''
               })
             });
             if (verRes.ok) {
@@ -817,7 +815,13 @@ export function PartnerOnboardingPaymentPage() {
             setErrorMsg('Payment cancelled. You can complete it whenever you are ready.');
           }
         }
-      });
+      };
+
+      if (isRealRazorpayOrder) {
+        rzpOptions.order_id = rawOrderId;
+      }
+
+      const rzp = new window.Razorpay(rzpOptions);
 
       rzp.on('payment.failed', function (resp) {
         setPayLoading(false);
