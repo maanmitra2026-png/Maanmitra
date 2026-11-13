@@ -545,7 +545,7 @@ export default function PublicNavbar() {
             </Link>
           )}
 
-          {/* Get Access - ₹499 -> Button */}
+          {/* Get Access Button */}
           <Link
             to="/user/subscribe"
             className="mm-header-btn-access"
@@ -574,7 +574,7 @@ export default function PublicNavbar() {
               e.currentTarget.style.transform = 'none';
             }}
           >
-            <span style={{ color: '#FFFFFF' }}>Get Access – ₹499</span>
+            <span style={{ color: '#FFFFFF' }}>Get Access</span>
             <ArrowRight size={13} color="#FFFFFF" />
           </Link>
         </div>
@@ -698,7 +698,7 @@ export default function PublicNavbar() {
                   textDecoration: 'none'
                 }}
               >
-                <span>Get Access – ₹499</span>
+                <span>Get Access</span>
                 <ArrowRight size={14} />
               </Link>
             </div>

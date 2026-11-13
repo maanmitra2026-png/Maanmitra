@@ -43,7 +43,7 @@ export default function HomePage() {
       subheading: 'Instant live Chat, Voice Call, or HD Video with empathetic certified counsellors. Transparent per-minute billing.',
       primaryBtnText: 'Find Counsellors',
       primaryBtnLink: '/counselling',
-      secondaryBtnText: 'Get Access – ₹499',
+      secondaryBtnText: 'Get Access',
       secondaryBtnLink: '/user/subscribe',
       secondaryIcon: ShieldCheck,
       image: '/hero_slide_2.jpg',
@@ -844,55 +844,55 @@ export default function HomePage() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Title & Icon */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Crown size={26} color="#F6D080" />
-              </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, maxWidth: '140px', lineHeight: 1.25 }}>
-                Platform<br />Access Pass
-              </div>
-            </div>
-
-            {/* Vertical Divider */}
-            <div style={{ width: '1.5px', height: '60px', background: 'rgba(255, 255, 255, 0.2)' }} className="mm-hide-mobile" />
-
-            {/* Big Price */}
+            {/* Left Content Group: Title, Divider, and Checklist seamlessly filling the space */}
             <div style={{
-              fontSize: '3rem',
-              fontWeight: 800,
-              color: '#F6D080',
-              letterSpacing: '-1px'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '32px',
+              flexWrap: 'wrap',
+              flex: '1 1 auto'
             }}>
-              ₹499
-            </div>
-
-            {/* Features Checklist */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, auto)',
-              gap: '10px 24px',
-              fontSize: '0.88rem'
-            }}>
-              {[
-                'Access All Services',
-                'Book Sessions',
-                'Chat & Video Support',
-                'Guidance & Resources'
-              ].map((feat, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Check size={16} color="#F6D080" strokeWidth={3} />
-                  <span>{feat}</span>
+              {/* Title & Icon */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Crown size={26} color="#F6D080" />
                 </div>
-              ))}
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.25 }}>
+                  Platform<br />Access Pass
+                </div>
+              </div>
+
+              {/* Vertical Divider */}
+              <div style={{ width: '1.5px', height: '54px', background: 'rgba(255, 255, 255, 0.2)' }} className="mm-hide-mobile" />
+
+              {/* Features Checklist repositioned to the left */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, auto)',
+                gap: '10px 28px',
+                fontSize: '0.90rem'
+              }}>
+                {[
+                  'Access All Services',
+                  'Chat & Video Support',
+                  'Book Sessions',
+                  'Guidance & Resources'
+                ].map((feat, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+                    <Check size={16} color="#F6D080" strokeWidth={3} />
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* CTA Button */}
@@ -902,7 +902,7 @@ export default function HomePage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '13px 26px',
+                padding: '13px 28px',
                 borderRadius: '9999px',
                 background: '#F6D080',
                 color: '#4A154B',
@@ -910,10 +910,12 @@ export default function HomePage() {
                 fontSize: '0.96rem',
                 textDecoration: 'none',
                 boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
             >
-              <span>Get Access Now</span>
+              <span>Get Access</span>
               <ArrowRight size={17} />
             </Link>
           </div>
@@ -1067,7 +1069,7 @@ export default function HomePage() {
                 textDecoration: 'none'
               }}
             >
-              Get Access -- ₹499 <ArrowRight size={16} />
+              Get Access <ArrowRight size={16} />
             </Link>
           </div>
         </div>
