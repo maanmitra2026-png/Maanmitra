@@ -1,42 +1,52 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Youtube, Linkedin, Phone, Mail, Heart } from 'lucide-react';
+import { Instagram, Facebook, Youtube, Linkedin, Phone, Mail, MapPin } from 'lucide-react';
 import { MaanmitraOriginalLogo } from '../../ManmitraLogo';
+import { MAANMITRA_SERVICES } from '../../utils/servicesData';
 
 export default function PublicFooter() {
   return (
     <footer style={{
-      background: '#4A154B',
+      background: '#50164F',
       color: '#FFFFFF',
-      padding: '48px 20px 24px',
+      padding: '56px 20px 24px',
       position: 'relative'
     }} role="contentinfo">
       <div style={{
-        maxWidth: '1240px',
+        maxWidth: '1280px',
         margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
         gap: '36px',
-        paddingBottom: '36px',
+        paddingBottom: '40px',
         borderBottom: '1px solid rgba(255, 255, 255, 0.15)'
       }}>
-        {/* Column 1: Brand & Tagline */}
+        {/* COLUMN 1: BRAND */}
         <div>
-          <Link to="/" style={{ display: 'inline-block', marginBottom: '14px', textDecoration: 'none' }} aria-label="MAANMITRA">
-            <MaanmitraOriginalLogo height={42} />
+          <Link to="/" style={{ display: 'inline-block', marginBottom: '14px', textDecoration: 'none' }} aria-label="MAANMITRA Home">
+            <MaanmitraOriginalLogo height={40} />
           </Link>
+          <div style={{
+            fontSize: '0.84rem',
+            color: '#D8B36A',
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+            marginBottom: '10px'
+          }}>
+            A Listening Friend, Always With You.
+          </div>
           <p style={{
             fontSize: '0.84rem',
             color: 'rgba(255, 255, 255, 0.8)',
             lineHeight: 1.6,
-            maxWidth: '240px',
+            maxWidth: '260px',
             margin: '0 0 16px'
           }}>
-            A Listening Friend, Always With You. Confidential, empathetic emotional companionship and personal guidance.
+            Building meaningful connections, professional guidance and new opportunities. Safe, verified, and respectful.
           </p>
         </div>
 
-        {/* Column 2: Quick Links */}
+        {/* COLUMN 2: QUICK LINKS */}
         <div>
           <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#FFFFFF' }}>Quick Links</h4>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -47,20 +57,52 @@ export default function PublicFooter() {
               <Link to="/counselling" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Find Professionals</Link>
             </li>
             <li>
-              <Link to="/services" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Services</Link>
+              <Link to="/how-it-works" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>How It Works</Link>
             </li>
             <li>
-              <Link to="/about" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>About</Link>
+              <Link to="/about" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>About Us</Link>
+            </li>
+            <li>
+              <Link to="/contact" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Contact Us</Link>
             </li>
           </ul>
         </div>
 
-        {/* Column 3: Support */}
+        {/* COLUMN 3: OUR SERVICES (EXACT 8-SERVICE ORDER) */}
+        <div>
+          <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#D8B36A' }}>Our Services</h4>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '9px' }}>
+            {MAANMITRA_SERVICES.map((s) => (
+              <li key={s.id}>
+                <Link
+                  to={s.path}
+                  style={{
+                    color: s.isPriority ? '#FFFFFF' : 'rgba(255, 255, 255, 0.8)',
+                    fontWeight: s.isPriority ? 700 : 400,
+                    textDecoration: 'none',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span style={{ color: '#D8B36A', fontSize: '0.74rem' }}>{s.number}.</span>
+                  <span>{s.title}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* COLUMN 4: SUPPORT */}
         <div>
           <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#FFFFFF' }}>Support</h4>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <li>
               <Link to="/faq" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>FAQs</Link>
+            </li>
+            <li>
+              <Link to="/contact" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Help &amp; Support</Link>
             </li>
             <li>
               <Link to="/privacy" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Privacy Policy</Link>
@@ -69,82 +111,74 @@ export default function PublicFooter() {
               <Link to="/terms" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Terms &amp; Conditions</Link>
             </li>
             <li>
-              <Link to="/become-a-partner" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Become a Partner</Link>
+              <Link to="/refund-policy" style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', fontSize: '0.86rem' }}>Refund Policy</Link>
             </li>
           </ul>
         </div>
 
-        {/* Column 4: Get in Touch */}
+        {/* COLUMN 5: CONTACT */}
         <div>
-          <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#FFFFFF' }}>Get in Touch</h4>
+          <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#FFFFFF' }}>Contact</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.86rem' }}>
-              <Phone size={15} color="#D4AF77" />
+              <Phone size={15} color="#D8B36A" />
               <span>+91 98765 43210</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.86rem' }}>
-              <Mail size={15} color="#D4AF77" />
+              <Mail size={15} color="#D8B36A" />
               <span>support@maanmitra.com</span>
             </div>
-          </div>
-        </div>
-
-        {/* Column 5: Follow Us */}
-        <div>
-          <h4 style={{ fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', color: '#FFFFFF' }}>Follow Us</h4>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            {[
-              { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-              { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-              { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-              { icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
-            ].map((soc, i) => {
-              const Icon = soc.icon;
-              return (
-                <a
-                  key={i}
-                  href={soc.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={soc.label}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    color: '#FFFFFF',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Icon size={16} />
-                </a>
-              );
-            })}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.86rem', lineHeight: 1.5 }}>
+              <MapPin size={15} color="#D8B36A" style={{ flexShrink: 0, marginTop: '3px' }} />
+              <span>Bangalore &amp; Mumbai, India</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
+      {/* BOTTOM: COPYRIGHT & SOCIALS */}
       <div style={{
-        maxWidth: '1240px',
-        margin: '0 auto',
-        paddingTop: '20px',
+        maxWidth: '1280px',
+        margin: '24px auto 0',
         display: 'flex',
-        flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '12px',
+        flexWrap: 'wrap',
+        gap: '16px',
         fontSize: '0.82rem',
-        color: 'rgba(255, 255, 255, 0.7)'
+        color: 'rgba(255, 255, 255, 0.65)'
       }}>
-        <span>(c) {new Date().getFullYear()} MAANMITRA. All Rights Reserved.</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span>A Safe - Supportive - Professional Platform</span>
-          <Heart size={14} color="#D4AF77" fill="#D4AF77" />
+        <div>
+          © {new Date().getFullYear()} MAANMITRA. All rights reserved. A Listening Friend, Always With You.
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {[
+            { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+            { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+            { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+            { icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
+          ].map((soc) => (
+            <a
+              key={soc.label}
+              href={soc.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={soc.label}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: 'rgba(255, 255, 255, 0.8)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <soc.icon size={15} />
+            </a>
+          ))}
         </div>
       </div>
     </footer>

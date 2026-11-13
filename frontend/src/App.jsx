@@ -19,6 +19,16 @@ import {
   RefundPolicyPage
 } from './pages/public/StaticPages';
 
+// 8 Dedicated Service Pages
+import MeetANewFriendPage from './pages/services/MeetANewFriendPage';
+import LivingRelationshipPage from './pages/services/LivingRelationshipPage';
+import StrangerTripPage from './pages/services/StrangerTripPage';
+import RelationshipGuidancePage from './pages/services/RelationshipGuidancePage';
+import LifeCoachingPage from './pages/services/LifeCoachingPage';
+import AstrologyKundaliPage from './pages/services/AstrologyKundaliPage';
+import RemoteWorkPage from './pages/services/RemoteWorkPage';
+import CounsellingSupportPage from './pages/services/CounsellingSupportPage';
+
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -142,9 +152,21 @@ export default function App() {
           {/* ================= PUBLIC WEBSITE ROUTES ================= */}
           <Route path="/" element={<HomePage />} />
           <Route path="/services" element={<ServicesPage />} />
+
+          {/* ================= 8 INDIVIDUAL DEDICATED SERVICE ROUTES ================= */}
+          <Route path="/services/meet-a-new-friend" element={<MeetANewFriendPage />} />
+          <Route path="/services/living-relationship" element={<LivingRelationshipPage />} />
+          <Route path="/services/stranger-trip" element={<StrangerTripPage />} />
+          <Route path="/services/relationship-guidance" element={<RelationshipGuidancePage />} />
+          <Route path="/services/life-coaching" element={<LifeCoachingPage />} />
+          <Route path="/services/astrology-kundali" element={<AstrologyKundaliPage />} />
+          <Route path="/services/remote-work" element={<RemoteWorkPage />} />
+          <Route path="/services/counselling" element={<CounsellingSupportPage />} />
+
+          {/* Core Navigation & Compatibility Routes */}
           <Route path="/counselling" element={<CounsellingPage />} />
           <Route path="/counseling" element={<CounsellingPage />} />
-          <Route path="/how-it-works" element={<ServicesPage />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/become-a-partner" element={<BecomePartnerPage />} />
           <Route path="/become-partner" element={<BecomePartnerPage />} />
           <Route path="/explore" element={<Navigate to="/services" replace />} />

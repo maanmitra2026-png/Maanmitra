@@ -1,479 +1,277 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
+  ArrowRight,
   ShieldCheck,
-  Users,
+  CheckCircle2,
+  Sparkles,
   Lock,
   Headphones,
-  Heart,
-  MessageSquare,
-  Home as HomeIcon,
-  HeartHandshake,
-  ArrowRight,
-  User,
-  Calendar,
-  Video,
-  Sparkles,
-  PhoneCall,
-  UserCheck
+  Users
 } from 'lucide-react';
 import PublicNavbar from '../../components/layout/PublicNavbar';
 import PublicFooter from '../../components/layout/PublicFooter';
-import CounsellingBookingModal from '../../components/common/CounsellingBookingModal';
-import '../../counselling_services.css';
+import { MAANMITRA_SERVICES } from '../../utils/servicesData';
 
 export default function ServicesPage() {
-  const navigate = useNavigate();
-  const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [selectedServiceForBooking, setSelectedServiceForBooking] = useState('Relationship Counselling');
-
-  const openBookingWithService = (serviceName) => {
-    setSelectedServiceForBooking(serviceName);
-    setBookingModalOpen(true);
-  };
-
-  const scrollToOfferings = () => {
-    const el = document.getElementById('what-we-offer');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  const topPriorityServices = MAANMITRA_SERVICES.slice(0, 3);
+  const remainingServices = MAANMITRA_SERVICES.slice(3);
 
   return (
-    <div className="mm-cs-page">
-      {/* 1. NAVBAR */}
+    <div style={{ background: '#FFF9F5', minHeight: '100vh', fontFamily: "'Outfit', 'Poppins', sans-serif", color: '#2D162C' }}>
       <PublicNavbar />
 
-      <main id="main-content">
-        {/* ===================================================================
-            2. HERO SECTION
-            =================================================================== */}
-        <section className="mm-cs-hero-section" aria-labelledby="services-hero-heading">
-          <div className="mm-cs-hero-container">
-            {/* Left Content */}
-            <div className="mm-cs-hero-left">
-              <span className="mm-cs-tag-badge">OUR SERVICES</span>
-
-              <h1 id="services-hero-heading" className="mm-cs-hero-title">
-                Comprehensive<br />
-                Relationship Support<br />
-                for a <span className="highlight">Happier Tomorrow</span>
-              </h1>
-
-              <p className="mm-cs-hero-desc">
-                Explore our trusted services designed to help you find the right partner, get professional guidance and build stronger relationships.
-              </p>
-
-              {/* 4 Icon Highlights Row */}
-              <div className="mm-cs-hero-trust-row" aria-label="Key Service Highlights">
-                <div className="mm-cs-trust-card">
-                  <div className="mm-cs-trust-icon-wrap">
-                    <ShieldCheck size={22} />
-                  </div>
-                  <span className="mm-cs-trust-label">Trusted &amp; Secure Platform</span>
-                </div>
-
-                <div className="mm-cs-trust-card">
-                  <div className="mm-cs-trust-icon-wrap">
-                    <Users size={22} />
-                  </div>
-                  <span className="mm-cs-trust-label">Verified Professionals</span>
-                </div>
-
-                <div className="mm-cs-trust-card">
-                  <div className="mm-cs-trust-icon-wrap">
-                    <Lock size={22} />
-                  </div>
-                  <span className="mm-cs-trust-label">Privacy Protected</span>
-                </div>
-
-                <div className="mm-cs-trust-card">
-                  <div className="mm-cs-trust-icon-wrap">
-                    <Headphones size={22} />
-                  </div>
-                  <span className="mm-cs-trust-label">Support at Every Step</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Visual Artwork */}
-            <div className="mm-cs-hero-visual">
-              <div className="mm-cs-hero-image-wrap">
-                <img
-                  src="/hd_asset_hero_romantic_couple.jpg"
-                  alt="Couple looking at sunset together"
-                  className="mm-cs-hero-main-img"
-                  loading="eager"
-                />
-
-                {/* Handwritten Floating Label */}
-                <div className="mm-cs-hero-handwritten" aria-hidden="true">
-                  <span>Meaningful Connections Begin Here &#x2661;</span>
-                </div>
-
-                {/* Floating Bottom Card */}
-                <div className="mm-cs-hero-floating-card">
-                  <div className="mm-cs-floating-icon-wrap">
-                    <Heart size={18} fill="#E91E63" color="#E91E63" />
-                  </div>
-                  <span className="mm-cs-floating-text">
-                    Guidance Today for Stronger Relationships Tomorrow
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <main>
+        {/* HERO */}
+        <section style={{
+          padding: '48px 20px 40px',
+          maxWidth: '1240px',
+          margin: '0 auto',
+          textAlign: 'center'
+        }}>
+          <span style={{
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            color: '#D8B36A',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            display: 'inline-block',
+            marginBottom: '10px'
+          }}>
+            Explore Our 8 Services
+          </span>
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(2.2rem, 4vw, 3.3rem)',
+            fontWeight: 800,
+            color: '#50164F',
+            margin: '0 0 16px',
+            lineHeight: 1.15
+          }}>
+            Connections, Guidance &amp; Opportunities <span style={{ color: '#D8B36A', display: 'block' }}>Designed Around You.</span>
+          </h1>
+          <p style={{
+            color: '#665365',
+            fontSize: '1.08rem',
+            lineHeight: 1.6,
+            maxWidth: '680px',
+            margin: '0 auto 36px'
+          }}>
+            From making lifelong friendships and exploring group travels to living relationship advisory, Kundali consultations, and remote opportunities — discover your path on MAANMITRA.
+          </p>
         </section>
 
-        {/* ===================================================================
-            3. "WHAT WE OFFER" SECTION (4 Core Services Cards)
-            =================================================================== */}
-        <section id="what-we-offer" className="mm-cs-services-grid-section" aria-labelledby="offer-title">
-          <div className="mm-cs-container">
-            <div className="mm-cs-section-header">
-              <span className="mm-cs-eyebrow">&mdash; OUR SERVICES &mdash;</span>
-              <h2 id="offer-title" className="mm-cs-section-title">What We Offer</h2>
-              <p className="mm-cs-section-subtitle">
-                Wide range of services to support you at every stage of your relationship journey.
-              </p>
-            </div>
-
-            {/* 4 Cards Grid */}
-            <div className="mm-cs-cards-grid-4">
-              {/* Card 1: Partner Discovery */}
-              <article className="mm-cs-service-card">
-                <div className="mm-cs-card-img-wrap">
-                  <img
-                    src="/card1-clean.jpg"
-                    alt="Smiling young couple enjoying moment together"
-                    className="mm-cs-card-img"
-                    loading="lazy"
-                  />
-                  <div className="mm-cs-card-icon-pill">
-                    <div className="mm-cs-card-icon-inner rose">
-                      <Users size={18} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mm-cs-card-body">
-                  <h3 className="mm-cs-card-title">Partner Discovery</h3>
-                  <p className="mm-cs-card-desc">
-                    Find compatible people based on your values, interests and lifestyle.
-                  </p>
-                  <Link to="/register" className="mm-cs-card-link">
-                    <span>Learn More</span>
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </article>
-
-              {/* Card 2: Relationship Counselling */}
-              <article className="mm-cs-service-card">
-                <div className="mm-cs-card-img-wrap">
-                  <img
-                    src="/hd_asset_card2_counselor_blazer.jpg"
-                    alt="Professional female relationship counselor smiling in consultation room"
-                    className="mm-cs-card-img"
-                    loading="lazy"
-                  />
-                  <div className="mm-cs-card-icon-pill">
-                    <div className="mm-cs-card-icon-inner plum">
-                      <MessageSquare size={18} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mm-cs-card-body">
-                  <h3 className="mm-cs-card-title">Relationship Counselling</h3>
-                  <p className="mm-cs-card-desc">
-                    Get professional guidance from certified counsellors for a healthier relationship.
-                  </p>
-                  <Link to="/counselling?category=relationship" className="mm-cs-card-link">
-                    <span>Learn More</span>
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </article>
-
-              {/* Card 3: Live-in Relationship Guidance */}
-              <article className="mm-cs-service-card">
-                <div className="mm-cs-card-img-wrap">
-                  <img
-                    src="/hd_asset_card3_house_hands.jpg"
-                    alt="Hands carefully cupping a wooden house model with red heart"
-                    className="mm-cs-card-img"
-                    loading="lazy"
-                  />
-                  <div className="mm-cs-card-icon-pill">
-                    <div className="mm-cs-card-icon-inner gold">
-                      <HomeIcon size={18} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mm-cs-card-body">
-                  <h3 className="mm-cs-card-title">Live-in Relationship Guidance</h3>
-                  <p className="mm-cs-card-desc">
-                    Learn and plan your shared future with the right support and information.
-                  </p>
-                  <Link to="/counselling?category=livein" className="mm-cs-card-link">
-                    <span>Learn More</span>
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </article>
-
-              {/* Card 4: Family Counselling */}
-              <article className="mm-cs-service-card">
-                <div className="mm-cs-card-img-wrap">
-                  <img
-                    src="/services_family.jpg"
-                    alt="Couple consulting with professional family guidance advisor"
-                    className="mm-cs-card-img"
-                    loading="lazy"
-                  />
-                  <div className="mm-cs-card-icon-pill">
-                    <div className="mm-cs-card-icon-inner pink">
-                      <HeartHandshake size={18} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mm-cs-card-body">
-                  <h3 className="mm-cs-card-title">Family Counselling</h3>
-                  <p className="mm-cs-card-desc">
-                    Resolve family concerns and strengthen relationships with expert support.
-                  </p>
-                  <Link to="/counselling?category=family" className="mm-cs-card-link">
-                    <span>Learn More</span>
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================================
-            4. "WHY CHOOSE MAANMITRA?" SECTION
-            =================================================================== */}
-        <section className="mm-cs-why-section" aria-labelledby="why-title">
-          <div className="mm-cs-container">
-            <h2 id="why-title" className="mm-cs-section-title" style={{ textAlign: 'center' }}>
-              Why Choose MAANMITRA?
+        {/* TOP 3 PRIORITY SERVICES (FEATURED ROW) */}
+        <section style={{ maxWidth: '1280px', margin: '0 auto 60px', padding: '0 20px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px'
+          }}>
+            <div style={{ width: '4px', height: '24px', background: '#D8B36A', borderRadius: '4px' }} />
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 800, color: '#50164F', margin: 0 }}>
+              Main Priority Services
             </h2>
-
-            <div className="mm-cs-why-grid">
-              <div className="mm-cs-why-card">
-                <div className="mm-cs-why-icon-wrap">
-                  <ShieldCheck size={22} />
-                </div>
-                <span className="mm-cs-why-text">Professional &amp; Verified Counsellors</span>
-              </div>
-
-              <div className="mm-cs-why-card">
-                <div className="mm-cs-why-icon-wrap">
-                  <Lock size={20} />
-                </div>
-                <span className="mm-cs-why-text">Confidential &amp; Safe Sessions</span>
-              </div>
-
-              <div className="mm-cs-why-card">
-                <div className="mm-cs-why-icon-wrap">
-                  <Heart size={20} fill="#E91E63" color="#E91E63" />
-                </div>
-                <span className="mm-cs-why-text">Personalized Guidance</span>
-              </div>
-
-              <div className="mm-cs-why-card">
-                <div className="mm-cs-why-icon-wrap">
-                  <Users size={20} />
-                </div>
-                <span className="mm-cs-why-text">Support for Every Relationship Stage</span>
-              </div>
-            </div>
           </div>
-        </section>
 
-        {/* ===================================================================
-            5. "HOW IT WORKS" 4-STEP PROCESS
-            =================================================================== */}
-        <section className="mm-cs-how-section" aria-labelledby="steps-title">
-          <div className="mm-cs-container">
-            <div className="mm-cs-section-header">
-              <span className="mm-cs-eyebrow">&mdash; HOW IT WORKS &mdash;</span>
-              <h2 id="steps-title" className="mm-cs-section-title">
-                Get the Support You Need in Simple Steps
-              </h2>
-            </div>
-
-            <div className="mm-cs-steps-row">
-              {/* Step 1 */}
-              <div className="mm-cs-step-col">
-                <div className="mm-cs-step-circle">
-                  <User size={24} />
-                </div>
-                <h3 className="mm-cs-step-title">1. Explore Services</h3>
-                <p className="mm-cs-step-desc">
-                  Browse our services and choose what you need.
-                </p>
-              </div>
-
-              <div className="mm-cs-step-arrow" aria-hidden="true">
-                <ArrowRight size={22} />
-              </div>
-
-              {/* Step 2 */}
-              <div className="mm-cs-step-col">
-                <div className="mm-cs-step-circle">
-                  <Calendar size={24} />
-                </div>
-                <h3 className="mm-cs-step-title">2. Book a Session</h3>
-                <p className="mm-cs-step-desc">
-                  Select counsellor, date and session type.
-                </p>
-              </div>
-
-              <div className="mm-cs-step-arrow" aria-hidden="true">
-                <ArrowRight size={22} />
-              </div>
-
-              {/* Step 3 */}
-              <div className="mm-cs-step-col">
-                <div className="mm-cs-step-circle">
-                  <Video size={24} />
-                </div>
-                <h3 className="mm-cs-step-title">3. Connect</h3>
-                <p className="mm-cs-step-desc">
-                  Join your session online or in-person.
-                </p>
-              </div>
-
-              <div className="mm-cs-step-arrow" aria-hidden="true">
-                <ArrowRight size={22} />
-              </div>
-
-              {/* Step 4 */}
-              <div className="mm-cs-step-col">
-                <div className="mm-cs-step-circle">
-                  <Heart size={24} fill="#E91E63" color="#E91E63" />
-                </div>
-                <h3 className="mm-cs-step-title">4. Get Guidance</h3>
-                <p className="mm-cs-step-desc">
-                  Receive expert support and take positive steps.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================================
-            6. "MORE THAN JUST A PLATFORM" (Split Section)
-            =================================================================== */}
-        <section className="mm-cs-platform-section" aria-label="Our Supportive Ecosystem">
-          <div className="mm-cs-container">
-            <div className="mm-cs-platform-banner">
-              {/* Left Image */}
-              <div className="mm-cs-platform-img-wrap">
-                <img
-                  src="/services_laptop_couple.jpg"
-                  alt="Young couple smiling while browsing together on a laptop"
-                  className="mm-cs-platform-img"
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Center Content */}
-              <div className="mm-cs-platform-center">
-                <h3>More Than Just a Platform</h3>
-                <p>
-                  MAANMITRA is a service provider focused on creating a supportive ecosystem for meaningful relationships through partner discovery, expert counselling and guided support.
-                </p>
-                <button
-                  type="button"
-                  onClick={scrollToOfferings}
-                  className="mm-cs-btn-rose"
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '24px'
+          }}>
+            {topPriorityServices.map((service) => {
+              const IconComp = service.icon;
+              return (
+                <div
+                  key={service.id}
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: '24px',
+                    overflow: 'hidden',
+                    border: `2px solid ${service.theme.borderLight}`,
+                    boxShadow: '0 8px 30px rgba(80, 22, 79, 0.08)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 16px 36px rgba(80, 22, 79, 0.14)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(80, 22, 79, 0.08)';
+                  }}
                 >
-                  <span>Explore Our Services</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
+                  <div style={{ height: '200px', position: 'relative', overflow: 'hidden' }}>
+                    <img src={service.heroImage} alt={service.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{
+                      position: 'absolute',
+                      top: '14px',
+                      left: '14px',
+                      background: service.theme.pillBg,
+                      color: service.theme.tagColor,
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em'
+                    }}>
+                      PRIORITY {service.number}
+                    </div>
+                  </div>
 
-              {/* Right Audience Pills */}
-              <div className="mm-cs-platform-list">
-                <div className="mm-cs-platform-pill">
-                  <Heart size={16} className="pill-icon" fill="#E91E63" />
-                  <span>Individuals</span>
+                  <div style={{ padding: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                      <div style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        background: service.theme.bgLight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <IconComp size={20} color={service.theme.accent} />
+                      </div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#50164F', margin: 0 }}>
+                        {service.title}
+                      </h3>
+                    </div>
+
+                    <p style={{ fontSize: '0.9rem', color: '#665365', lineHeight: 1.55, margin: '0 0 20px', minHeight: '44px' }}>
+                      {service.cardDescription}
+                    </p>
+
+                    <Link
+                      to={service.path}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '9999px',
+                        background: '#50164F',
+                        color: '#FFFFFF',
+                        fontWeight: 700,
+                        fontSize: '0.92rem',
+                        textDecoration: 'none',
+                        boxShadow: '0 4px 14px rgba(80, 22, 79, 0.2)'
+                      }}
+                    >
+                      <span>{service.ctaText}</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
                 </div>
-                <div className="mm-cs-platform-pill">
-                  <Users size={16} className="pill-icon" />
-                  <span>Couples</span>
-                </div>
-                <div className="mm-cs-platform-pill">
-                  <HomeIcon size={16} className="pill-icon" />
-                  <span>Families</span>
-                </div>
-                <div className="mm-cs-platform-pill">
-                  <HeartHandshake size={16} className="pill-icon" />
-                  <span>Live-in Couples</span>
-                </div>
-                <div className="mm-cs-platform-pill">
-                  <Sparkles size={16} className="pill-icon" />
-                  <span>Personal Growth</span>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </section>
 
-        {/* ===================================================================
-            7. BOTTOM CALL TO ACTION BANNER
-            =================================================================== */}
-        <section className="mm-cs-cta-section" aria-label="Book a Session">
-          <div className="mm-cs-container">
-            <div className="mm-cs-cta-banner">
-              <div className="mm-cs-cta-left">
-                <h2 className="mm-cs-cta-title">
-                  Take the First Step<br />
-                  Towards a Happier You
-                </h2>
-                <p className="mm-cs-cta-sub">
-                  Explore our services and get expert guidance today.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openBookingWithService('Relationship Counselling')}
-                  className="mm-cs-btn-white-pill"
-                >
-                  <span>Book a Session</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
+        {/* REMAINING 5 SERVICES */}
+        <section style={{ maxWidth: '1280px', margin: '0 auto 70px', padding: '0 20px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px'
+          }}>
+            <div style={{ width: '4px', height: '24px', background: '#50164F', borderRadius: '4px' }} />
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 800, color: '#50164F', margin: 0 }}>
+              Specialized Guidance &amp; Growth Services
+            </h2>
+          </div>
 
-              {/* Right Sunset Couple Illustration */}
-              <div className="mm-cs-cta-right-visual" aria-hidden="true">
-                <span className="mm-cs-cta-heart-art">&#x2661;</span>
-                <img
-                  src="/cta-couple-clean.png"
-                  alt=""
-                  className="mm-cs-cta-img"
-                  loading="lazy"
-                />
-              </div>
-            </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px'
+          }}>
+            {remainingServices.map((service) => {
+              const IconComp = service.icon;
+              return (
+                <div
+                  key={service.id}
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: '20px',
+                    padding: '24px',
+                    border: '1.5px solid #F0E3D7',
+                    boxShadow: '0 4px 18px rgba(80, 22, 79, 0.04)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(80, 22, 79, 0.10)';
+                    e.currentTarget.style.borderColor = '#D8B36A';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 4px 18px rgba(80, 22, 79, 0.04)';
+                    e.currentTarget.style.borderColor = '#F0E3D7';
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        background: service.theme.bgLight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <IconComp size={22} color={service.theme.accent} />
+                      </div>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#D8B36A' }}>
+                        {service.number}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#50164F', margin: '0 0 8px' }}>
+                      {service.title}
+                    </h3>
+                    <p style={{ fontSize: '0.86rem', color: '#665365', lineHeight: 1.55, margin: '0 0 20px' }}>
+                      {service.cardDescription}
+                    </p>
+                  </div>
+
+                  <Link
+                    to={service.path}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 18px',
+                      borderRadius: '9999px',
+                      background: '#FFF9F5',
+                      border: '1px solid #F0E3D7',
+                      color: '#50164F',
+                      fontWeight: 700,
+                      fontSize: '0.86rem',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <span>{service.ctaText}</span>
+                    <ArrowRight size={15} color="#D8B36A" />
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </section>
       </main>
 
-      {/* 8. FOOTER */}
       <PublicFooter />
-
-      {/* 9. INTERACTIVE BOOKING MODAL */}
-      <CounsellingBookingModal
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)}
-        initialCategory={selectedServiceForBooking}
-      />
     </div>
   );
 }
-

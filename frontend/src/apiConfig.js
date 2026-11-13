@@ -13,3 +13,36 @@ export const WS_BASE = rawWs.endsWith('/api/v1')
     ? rawWs.replace(/\/v1$/, '/api/v1')
     : `${rawWs}/api/v1`;
 
+export const api = {
+  get: async (url, options = {}) => {
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {})
+    };
+    const res = await fetch(fullUrl, { ...options, method: 'GET', headers });
+    const data = await res.json().catch(() => ({}));
+    return { data, status: res.status, ok: res.ok };
+  },
+  post: async (url, body, options = {}) => {
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {})
+    };
+    const res = await fetch(fullUrl, {
+      ...options,
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    return { data, status: res.status, ok: res.ok };
+  }
+};
+
+export default api;
