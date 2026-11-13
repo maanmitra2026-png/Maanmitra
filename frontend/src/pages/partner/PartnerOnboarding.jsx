@@ -759,7 +759,11 @@ export function PartnerOnboardingPaymentPage() {
       const order = await orderRes.json();
 
       const orderId = order.order_id || order.id;
-      const resolvedKey = order.razorpay_key || order.key_id || RAZORPAY_KEY || 'rzp_live_TwgPINXkMnFaPI';
+      if (!orderId || String(orderId).startsWith('order_mock_')) {
+        throw new Error('Valid Razorpay order could not be generated. Please retry or contact support.');
+      }
+      const rawKey = order.razorpay_key || order.key_id || RAZORPAY_KEY;
+      const resolvedKey = (rawKey && !rawKey.includes('mock') && !rawKey.includes('test')) ? rawKey : 'rzp_live_TwgPINXkMnFaPI';
 
       const sdkLoaded = await loadRazorpay();
       if (!sdkLoaded || !window.Razorpay) {

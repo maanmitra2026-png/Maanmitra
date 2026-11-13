@@ -69,9 +69,14 @@ export async function openRazorpayCheckout({
     throw new Error('Razorpay payment gateway failed to load. Please check your network connection.');
   }
 
-  const resolvedKey = key || key_id || RAZORPAY_KEY_ID || 'rzp_live_TwgPINXkMnFaPI';
+  const rawKey = key || key_id || RAZORPAY_KEY_ID;
+  const resolvedKey = (rawKey && !rawKey.includes('mock') && !rawKey.includes('test')) ? rawKey : 'rzp_live_TwgPINXkMnFaPI';
   if (!resolvedKey) {
     throw new Error('Razorpay Key ID is not configured. Please contact support.');
+  }
+
+  if (!order_id || String(order_id).startsWith('order_mock_')) {
+    throw new Error('Valid Razorpay order was not provided. Please retry.');
   }
 
   // Ensure amount is an integer in paise

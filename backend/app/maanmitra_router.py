@@ -526,51 +526,41 @@ def create_registration_order(
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    if RAZORPAY_KEY and RAZORPAY_SECRET:
-        try:
-            auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-            b64_auth = base64.b64encode(auth_str.encode()).decode()
-            headers = {
-                "Authorization": f"Basic {b64_auth}",
-                "Content-Type": "application/json"
-            }
-            rzp_data = {
+    try:
+        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
+        b64_auth = base64.b64encode(auth_str.encode()).decode()
+        headers = {
+            "Authorization": f"Basic {b64_auth}",
+            "Content-Type": "application/json"
+        }
+        rzp_data = {
+            "amount": amount_paise,
+            "currency": "INR",
+            "receipt": order_ref,
+            "notes": {"purpose": "maanmitra_registration", "partner_id": str(profile.id), "user_id": str(user.id)}
+        }
+        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
+        if res.status_code in [200, 201]:
+            rz_order = res.json()
+            return {
+                "id": rz_order["id"],
+                "order_id": rz_order["id"],
                 "amount": amount_paise,
                 "currency": "INR",
                 "receipt": order_ref,
-                "notes": {"purpose": "maanmitra_registration", "partner_id": str(profile.id), "user_id": str(user.id)}
+                "razorpay_key": RAZORPAY_KEY,
+                "purpose": "registration",
+                "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
+                "is_mock": False
             }
-            res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
-            if res.status_code in [200, 201]:
-                rz_order = res.json()
-                return {
-                    "id": rz_order["id"],
-                    "order_id": rz_order["id"],
-                    "amount": amount_paise,
-                    "currency": "INR",
-                    "receipt": order_ref,
-                    "razorpay_key": RAZORPAY_KEY,
-                    "purpose": "registration",
-                    "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
-                    "is_mock": False
-                }
-            else:
-                logger.error(f"Razorpay registration order failed: {res.text}")
-        except Exception as e:
-            logger.error(f"Error calling Razorpay for registration order: {e}")
-
-    # Fallback only if offline/sandbox
-    return {
-        "id": f"order_mock_{order_ref}",
-        "order_id": f"order_mock_{order_ref}",
-        "amount": amount_paise,
-        "currency": "INR",
-        "receipt": order_ref,
-        "razorpay_key": RAZORPAY_KEY,
-        "purpose": "registration",
-        "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
-        "is_mock": False
-    }
+        else:
+            logger.error(f"Razorpay registration order failed: {res.text}")
+            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay registration order: {res.text}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calling Razorpay for registration order: {e}")
+        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 
 @router.post("/partner/onboarding/verify-registration-payment")
@@ -598,13 +588,10 @@ def verify_registration_payment(
     razorpay_signature = payload.get("razorpay_signature", "")
     is_mock = payload.get("is_mock", False)
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if is_mock or not RAZORPAY_SECRET:
-        # Development / demo mode: auto-verify
-        payment_verified = True
-    elif razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -615,6 +602,8 @@ def verify_registration_payment(
             payment_verified = hmac.compare_digest(expected_sig, razorpay_signature)
         except Exception:
             payment_verified = False
+    elif is_mock:
+        payment_verified = True
 
     if not payment_verified:
         raise HTTPException(status_code=400, detail="Payment verification failed. Please contact support.")
@@ -690,50 +679,41 @@ def create_activation_order(
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    if RAZORPAY_KEY and RAZORPAY_SECRET:
-        try:
-            auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-            b64_auth = base64.b64encode(auth_str.encode()).decode()
-            headers = {
-                "Authorization": f"Basic {b64_auth}",
-                "Content-Type": "application/json"
-            }
-            rzp_data = {
+    try:
+        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
+        b64_auth = base64.b64encode(auth_str.encode()).decode()
+        headers = {
+            "Authorization": f"Basic {b64_auth}",
+            "Content-Type": "application/json"
+        }
+        rzp_data = {
+            "amount": amount_paise,
+            "currency": "INR",
+            "receipt": order_ref,
+            "notes": {"purpose": "maanmitra_activation", "partner_id": str(profile.id), "user_id": str(user.id)}
+        }
+        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
+        if res.status_code in [200, 201]:
+            rz_order = res.json()
+            return {
+                "id": rz_order["id"],
+                "order_id": rz_order["id"],
                 "amount": amount_paise,
                 "currency": "INR",
                 "receipt": order_ref,
-                "notes": {"purpose": "maanmitra_activation", "partner_id": str(profile.id), "user_id": str(user.id)}
+                "razorpay_key": RAZORPAY_KEY,
+                "purpose": "activation",
+                "description": "Maanmitra Training & Profile Activation Fee (₹499)",
+                "is_mock": False
             }
-            res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
-            if res.status_code in [200, 201]:
-                rz_order = res.json()
-                return {
-                    "id": rz_order["id"],
-                    "order_id": rz_order["id"],
-                    "amount": amount_paise,
-                    "currency": "INR",
-                    "receipt": order_ref,
-                    "razorpay_key": RAZORPAY_KEY,
-                    "purpose": "activation",
-                    "description": "Maanmitra Training & Profile Activation Fee (₹499)",
-                    "is_mock": False
-                }
-            else:
-                logger.error(f"Razorpay activation order failed: {res.text}")
-        except Exception as e:
-            logger.error(f"Error calling Razorpay for activation order: {e}")
-
-    return {
-        "id": f"order_mock_{order_ref}",
-        "order_id": f"order_mock_{order_ref}",
-        "amount": amount_paise,
-        "currency": "INR",
-        "receipt": order_ref,
-        "razorpay_key": RAZORPAY_KEY,
-        "purpose": "activation",
-        "description": "Maanmitra Training & Profile Activation Fee (₹499)",
-        "is_mock": False
-    }
+        else:
+            logger.error(f"Razorpay activation order failed: {res.text}")
+            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay activation order: {res.text}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calling Razorpay for activation order: {e}")
+        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 
 @router.post("/partner/onboarding/verify-activation-payment")
@@ -767,12 +747,10 @@ def verify_activation_payment(
     razorpay_signature = payload.get("razorpay_signature", "")
     is_mock = payload.get("is_mock", False)
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if is_mock or not RAZORPAY_SECRET:
-        payment_verified = True
-    elif razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -783,6 +761,8 @@ def verify_activation_payment(
             payment_verified = hmac.compare_digest(expected_sig, razorpay_signature)
         except Exception:
             payment_verified = False
+    elif is_mock:
+        payment_verified = True
 
     if not payment_verified:
         raise HTTPException(status_code=400, detail="Activation payment verification failed.")
@@ -2561,19 +2541,25 @@ def create_user_subscription_order(user: User = Depends(get_current_user), db: S
     if getattr(user, "subscription_paid", False):
         return {"already_paid": True, "message": "Subscription already active."}
 
-    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID")
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    if RAZORPAY_KEY and RAZORPAY_SECRET:
-        try:
-            import razorpay as rz
-            client = rz.Client(auth=(RAZORPAY_KEY, RAZORPAY_SECRET))
-            rz_order = client.order.create({
-                "amount": USER_SUBSCRIPTION_FEE_INR * 100,
-                "currency": "INR",
-                "receipt": f"usub_{user.id}_{uuid.uuid4().hex[:8]}",
-                "notes": {"user_id": str(user.id), "type": "user_subscription"}
-            })
+    try:
+        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
+        b64_auth = base64.b64encode(auth_str.encode()).decode()
+        headers = {
+            "Authorization": f"Basic {b64_auth}",
+            "Content-Type": "application/json"
+        }
+        rzp_data = {
+            "amount": USER_SUBSCRIPTION_FEE_INR * 100,
+            "currency": "INR",
+            "receipt": f"usub_{user.id}_{uuid.uuid4().hex[:8]}",
+            "notes": {"user_id": str(user.id), "type": "user_subscription"}
+        }
+        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
+        if res.status_code in [200, 201]:
+            rz_order = res.json()
             sub = UserSubscription(
                 user_id=user.id,
                 amount_inr=USER_SUBSCRIPTION_FEE_INR,
@@ -2590,27 +2576,14 @@ def create_user_subscription_order(user: User = Depends(get_current_user), db: S
                 "razorpay_key": RAZORPAY_KEY,
                 "is_mock": False
             }
-        except Exception as e:
-            print(f"[Razorpay] Error creating user subscription order: {e}")
-
-    # Mock / dev fallback
-    mock_id = f"order_usub_{uuid.uuid4().hex[:12]}"
-    sub = UserSubscription(
-        user_id=user.id,
-        amount_inr=USER_SUBSCRIPTION_FEE_INR,
-        razorpay_order_id=mock_id,
-        status="pending"
-    )
-    db.add(sub)
-    db.commit()
-    return {
-        "id": mock_id,
-        "order_id": mock_id,
-        "amount": USER_SUBSCRIPTION_FEE_INR * 100,
-        "currency": "INR",
-        "razorpay_key": RAZORPAY_KEY or "rzp_test_mock",
-        "is_mock": True
-    }
+        else:
+            logger.error(f"Razorpay subscription order failed: {res.text}")
+            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay subscription order: {res.text}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[Razorpay] Error creating user subscription order: {e}")
+        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 @router.post("/user/subscription/verify-payment")
 def verify_user_subscription_payment(payload: dict = Body(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -2623,12 +2596,10 @@ def verify_user_subscription_payment(payload: dict = Body(...), user: User = Dep
     razorpay_order_id = payload.get("razorpay_order_id", "")
     razorpay_signature = payload.get("razorpay_signature", "")
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if is_mock or not RAZORPAY_SECRET:
-        payment_verified = True
-    elif razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -2639,6 +2610,8 @@ def verify_user_subscription_payment(payload: dict = Body(...), user: User = Dep
             payment_verified = hmac.compare_digest(expected_sig, razorpay_signature)
         except Exception:
             payment_verified = False
+    elif is_mock:
+        payment_verified = True
     else:
         raise HTTPException(status_code=400, detail="Payment verification data is incomplete.")
 
@@ -2760,8 +2733,7 @@ def create_wallet_topup_order(payload: UserWalletTopupOrderIn, user: User = Depe
             logger.error(f"Error calling Razorpay for wallet topup: {str(e)}")
 
     if not order_id:
-        # Fallback order id if gateway offline or credentials unavailable
-        order_id = f"order_mock_topup_{int(datetime.utcnow().timestamp())}"
+        raise HTTPException(status_code=502, detail="Failed to initialize Razorpay wallet top-up order.")
 
     return {
         "order_id": order_id,
@@ -3316,8 +3288,7 @@ def create_payment_order(
             logger.error(f"Error calling Razorpay API for booking order: {str(e)}")
 
     if not order_id:
-        # Fallback order id if sandbox network blocked
-        order_id = f"order_{uuid.uuid4().hex[:14]}"
+        raise HTTPException(status_code=502, detail="Failed to initialize Razorpay payment order for booking.")
 
     # Record Payment in DB
     payment = db.query(Payment).filter_by(booking_id=booking.id).first()

@@ -40,7 +40,7 @@ services:
 
       # ---- CORS (comma-separated list of frontend origins) ----
       - key: CORS_ORIGINS
-        value: "https://maanmitra.onrender.com,https://www.maanmitra.com"
+        value: "https://maanmitra-frontend-pk5h.onrender.com,https://maanmitra.onrender.com,https://www.maanmitra.com"
 
       # ---- File uploads ----
       - key: UPLOAD_DIR
@@ -106,7 +106,3 @@ services:
       # Razorpay Live Key ID (injected at build time by Vite)
       - key: VITE_RAZORPAY_KEY_ID
         value: "rzp_live_TwgPINXkMnFaPI"
-
-      # Razorpay publishable key (safe to expose in frontend)
-      - key: VITE_RAZORPAY_KEY_ID
-        sync: false                  # Set manually in Render dashboard
