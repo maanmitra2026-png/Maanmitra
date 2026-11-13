@@ -85,7 +85,7 @@ export function ManmitraAppIcon({ size = 48, className = '' }) {
 
 /**
  * Original MAANMITRA Logo Component from reference design
- * Displays the exact authentic logo mark and typography
+ * Displays the authentic golden emblem (two figures + heart 'M') and official typography
  */
 export function MaanmitraOriginalLogo({
   height = 42,
@@ -108,15 +108,60 @@ export function MaanmitraOriginalLogo({
       }}
     >
       <img
-        src="/maanmitra-original-logo-transparent.png"
-        alt="MAANMITRA -- A Listening Friend, Always With You"
+        src="/maanmitra-new-emblem.png"
+        alt="MAANMITRA Emblem"
         style={{
           height: `${height}px`,
           width: 'auto',
           display: 'block',
-          objectFit: 'contain'
+          objectFit: 'contain',
+          filter: 'drop-shadow(0 2px 4px rgba(74, 21, 75, 0.12))'
         }}
       />
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', lineHeight: 1 }}>
+          <span
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: `${Math.round(height * 0.50)}px`,
+              fontWeight: 800,
+              color: '#4A154B',
+              letterSpacing: '0.8px',
+              lineHeight: 1
+            }}
+          >
+            MAANMITRA
+          </span>
+          <span
+            style={{
+              fontSize: `${Math.round(height * 0.22)}px`,
+              fontWeight: 700,
+              color: '#4A154B',
+              verticalAlign: 'super',
+              marginLeft: '2px',
+              lineHeight: 1
+            }}
+          >
+            ®
+          </span>
+        </div>
+        {showTagline && (
+          <span
+            style={{
+              fontFamily: "'Outfit', 'Poppins', sans-serif",
+              fontSize: `${Math.max(9, Math.round(height * 0.21))}px`,
+              fontWeight: 600,
+              color: '#C49A45',
+              letterSpacing: '0.3px',
+              marginTop: '3px',
+              lineHeight: 1,
+              whiteSpace: 'nowrap'
+            }}
+          >
+            A Listening Friend, Always With You
+          </span>
+        )}
+      </div>
     </div>
   );
 }

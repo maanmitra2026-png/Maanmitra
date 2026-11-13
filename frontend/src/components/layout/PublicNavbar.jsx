@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, Search, ChevronDown, ArrowRight } from 'lucide-react';
+import {
+  Menu, X, User, LogOut, Search, ChevronDown, ArrowRight,
+  Heart, Compass, Sparkles, Laptop, Headphones
+} from 'lucide-react';
 import { MaanmitraOriginalLogo } from '../../ManmitraLogo';
 import { useAuth } from '../../context/AuthContext';
 
@@ -60,12 +63,43 @@ export default function PublicNavbar() {
     { label: 'Contact', path: '/contact' },
   ];
 
-  const servicesList = [
-    { title: 'Relationship Guidance', path: '/counselling' },
-    { title: 'Life Coaching', path: '/services' },
-    { title: 'Astrology & Kundali', path: '/services' },
-    { title: 'Remote Work Opportunities', path: '/become-a-partner' },
-    { title: 'Counselling & Support', path: '/counselling' },
+  // 5 Rich Service Cards in Mega-Menu (matching reference screenshot)
+  const servicesCards = [
+    {
+      title: 'Relationship Guidance',
+      bg: '#FDEEF1',
+      iconColor: '#E91E63',
+      icon: Heart,
+      link: '/counselling'
+    },
+    {
+      title: 'Life Coaching',
+      bg: '#FEF7EB',
+      iconColor: '#D4AF77',
+      icon: Compass,
+      link: '/services'
+    },
+    {
+      title: 'Astrology & Kundali',
+      bg: '#F4ECFA',
+      iconColor: '#8B5CF6',
+      icon: Sparkles,
+      link: '/services'
+    },
+    {
+      title: 'Remote Work Opportunities',
+      bg: '#EFF8F2',
+      iconColor: '#22A447',
+      icon: Laptop,
+      link: '/become-a-partner'
+    },
+    {
+      title: 'Counselling & Support',
+      bg: '#FDF0F4',
+      iconColor: '#E91E63',
+      icon: Headphones,
+      link: '/counselling'
+    }
   ];
 
   const isActive = (path) => {
@@ -81,7 +115,7 @@ export default function PublicNavbar() {
         zIndex: 1000,
         padding: '12px 20px',
         transition: 'all 0.25s ease',
-        background: scrolled ? 'rgba(253, 251, 249, 0.95)' : 'transparent',
+        background: scrolled ? 'rgba(253, 251, 249, 0.96)' : 'transparent',
         backdropFilter: scrolled ? 'blur(10px)' : 'none',
       }}
       role="banner"
@@ -103,9 +137,10 @@ export default function PublicNavbar() {
           alignItems: 'center',
           justifyContent: 'space-between',
           transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
+          position: 'relative',
         }}
       >
-        {/* 1. Brand Logo */}
+        {/* 1. Brand Logo with NEW Golden Emblem */}
         <Link
           to="/"
           style={{
@@ -124,18 +159,19 @@ export default function PublicNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
+            gap: '6px',
             marginLeft: '12px'
           }}
           className="mm-nav-desktop-only"
         >
           {navLinks.map((link) => {
             const active = isActive(link.path);
+
             if (link.hasDropdown) {
               return (
                 <div
                   key={link.label}
-                  style={{ position: 'relative' }}
+                  style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                   onMouseEnter={() => setServicesDropdownOpen(true)}
                   onMouseLeave={() => setServicesDropdownOpen(false)}
                 >
@@ -145,59 +181,203 @@ export default function PublicNavbar() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '7px 14px',
+                      padding: '7px 16px',
                       borderRadius: '9999px',
                       fontSize: '0.88rem',
-                      fontWeight: active ? 600 : 500,
-                      color: active ? '#FFFFFF' : '#4A154B',
-                      background: active ? '#4A154B' : 'transparent',
+                      fontWeight: (active || servicesDropdownOpen) ? 600 : 500,
+                      color: (active || servicesDropdownOpen) ? '#4A154B' : '#4A154B',
+                      background: servicesDropdownOpen ? '#FAF0F6' : (active ? '#FAF0F6' : 'transparent'),
+                      border: servicesDropdownOpen ? '1px solid #EEDBCF' : '1px solid transparent',
                       textDecoration: 'none',
                       transition: 'all 0.2s ease',
                     }}
                   >
                     <span>{link.label}</span>
-                    <ChevronDown size={14} style={{ opacity: 0.7, transform: servicesDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                    <ChevronDown
+                      size={14}
+                      style={{
+                        opacity: 0.75,
+                        transform: servicesDropdownOpen ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    />
                   </Link>
 
-                  {/* Dropdown Menu */}
+                  {/* Indicator notch underneath Services when active/open */}
+                  {servicesDropdownOpen && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '-10px',
+                        width: '24px',
+                        height: '2.5px',
+                        background: '#D4AF77',
+                        borderRadius: '2px',
+                      }}
+                    />
+                  )}
+
+                  {/* Rich Services Dropdown Mega-Menu Card (matching screenshot) */}
                   {servicesDropdownOpen && (
                     <div
                       style={{
                         position: 'absolute',
                         top: '100%',
-                        left: '0',
-                        marginTop: '8px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        marginTop: '14px',
                         background: '#FFFFFF',
-                        borderRadius: '16px',
-                        boxShadow: '0 12px 32px rgba(74, 21, 75, 0.14)',
-                        border: '1px solid #F0DCE8',
-                        padding: '8px',
-                        minWidth: '220px',
-                        zIndex: 1010,
+                        borderRadius: '22px',
+                        boxShadow: '0 20px 50px rgba(74, 21, 75, 0.16)',
+                        border: '1.5px solid #F0DCE8',
+                        padding: '18px 20px 20px',
+                        width: '630px',
+                        zIndex: 1020,
                         animation: 'fadeIn 0.2s ease',
                       }}
                     >
-                      {servicesList.map((item) => (
-                        <Link
-                          key={item.title}
-                          to={item.path}
-                          onClick={() => setServicesDropdownOpen(false)}
-                          style={{
-                            display: 'block',
-                            padding: '9px 14px',
-                            borderRadius: '10px',
-                            color: '#4A154B',
-                            fontSize: '0.85rem',
-                            fontWeight: 500,
-                            textDecoration: 'none',
-                            transition: 'background 0.15s ease',
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = '#FAF2F7'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                        >
-                          {item.title}
-                        </Link>
-                      ))}
+                      {/* Top Arrow Pointer Notch */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '-9px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: 0,
+                          height: 0,
+                          borderLeft: '10px solid transparent',
+                          borderRight: '10px solid transparent',
+                          borderBottom: '10px solid #FFFFFF',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '-11px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: 0,
+                          height: 0,
+                          borderLeft: '11px solid transparent',
+                          borderRight: '11px solid transparent',
+                          borderBottom: '11px solid #F0DCE8',
+                          zIndex: -1
+                        }}
+                      />
+
+                      {/* Header: — Our Services — */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '12px',
+                          marginBottom: '16px',
+                        }}
+                      >
+                        <div style={{ height: '2px', width: '36px', background: '#D4AF77', borderRadius: '2px' }} />
+                        <span style={{
+                          color: '#4A154B',
+                          fontSize: '0.98rem',
+                          fontWeight: 800,
+                          letterSpacing: '0.3px',
+                        }}>
+                          Our Services
+                        </span>
+                        <div style={{ height: '2px', width: '36px', background: '#D4AF77', borderRadius: '2px' }} />
+                      </div>
+
+                      {/* 5 Cards Row */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(5, 1fr)',
+                          gap: '10px',
+                        }}
+                      >
+                        {servicesCards.map((card) => {
+                          const IconComp = card.icon;
+                          return (
+                            <Link
+                              key={card.title}
+                              to={card.link}
+                              onClick={() => setServicesDropdownOpen(false)}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '12px 6px 10px',
+                                borderRadius: '14px',
+                                background: '#FFFFFF',
+                                border: '1px solid #F4E8EE',
+                                textDecoration: 'none',
+                                transition: 'all 0.2s ease',
+                                textAlign: 'center',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-3px)';
+                                e.currentTarget.style.boxShadow = '0 6px 18px rgba(74, 21, 75, 0.08)';
+                                e.currentTarget.style.borderColor = '#D4AF77';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'none';
+                                e.currentTarget.style.boxShadow = 'none';
+                                e.currentTarget.style.borderColor = '#F4E8EE';
+                              }}
+                            >
+                              {/* Icon Container */}
+                              <div
+                                style={{
+                                  width: '42px',
+                                  height: '42px',
+                                  borderRadius: '12px',
+                                  background: card.bg,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginBottom: '8px',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <IconComp size={20} color={card.iconColor} />
+                              </div>
+
+                              {/* Title */}
+                              <div
+                                style={{
+                                  fontSize: '0.74rem',
+                                  fontWeight: 700,
+                                  color: '#4A154B',
+                                  lineHeight: 1.25,
+                                  minHeight: '28px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                {card.title}
+                              </div>
+
+                              {/* Small Gold Arrow Button */}
+                              <div
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '50%',
+                                  background: '#EAC384',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginTop: '8px',
+                                }}
+                              >
+                                <ArrowRight size={10} color="#380C22" />
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -205,31 +385,48 @@ export default function PublicNavbar() {
             }
 
             return (
-              <Link
+              <div
                 key={link.label}
-                to={link.path}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: active ? '7px 18px' : '7px 14px',
-                  borderRadius: '9999px',
-                  fontSize: '0.88rem',
-                  fontWeight: active ? 600 : 500,
-                  color: active ? '#FFFFFF' : '#4A154B',
-                  background: active ? '#4A154B' : 'transparent',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.background = '#FAF2F7';
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.background = 'transparent';
-                }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
               >
-                <span>{link.label}</span>
-              </Link>
+                <Link
+                  to={link.path}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: active ? '7px 18px' : '7px 14px',
+                    borderRadius: '9999px',
+                    fontSize: '0.88rem',
+                    fontWeight: active ? 600 : 500,
+                    color: active ? '#FFFFFF' : '#4A154B',
+                    background: active ? '#4A154B' : 'transparent',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) e.currentTarget.style.background = '#FAF2F7';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <span>{link.label}</span>
+                </Link>
+
+                {/* Active Indicator Underline for Home (matching screenshot) */}
+                {active && (
+                  <div
+                    style={{
+                      width: '20px',
+                      height: '2.5px',
+                      background: '#D4AF77',
+                      borderRadius: '2px',
+                      marginTop: '2px',
+                    }}
+                  />
+                )}
+              </div>
             );
           })}
         </nav>
