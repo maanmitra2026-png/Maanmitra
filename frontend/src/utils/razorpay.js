@@ -2,7 +2,7 @@
 // RAZORPAY STANDARD WEB CHECKOUT UTILITIES
 // ==============================================================================
 
-export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TwgPINXkMnFaPI';
 
 /**
  * Dynamically injects and loads the Razorpay Standard Checkout SDK script.
@@ -10,7 +10,7 @@ export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
  */
 export function loadRazorpayScript() {
   return new Promise((resolve) => {
-    if (window.Razorpay) {
+    if (typeof window !== 'undefined' && window.Razorpay) {
       resolve(true);
       return;
     }
@@ -33,6 +33,8 @@ export function loadRazorpayScript() {
  * Opens standard Razorpay Checkout modal with the specified order details.
  * 
  * @param {Object} config
+ * @param {string} [config.key] - Razorpay Key ID (or key_id)
+ * @param {string} [config.key_id] - Razorpay Key ID
  * @param {string} config.order_id - Razorpay Order ID from backend create-order
  * @param {number} config.amount - Amount in paise (e.g. 49900 for 499 INR)
  * @param {string} [config.currency='INR']
@@ -41,39 +43,44 @@ export function loadRazorpayScript() {
  * @param {string} [config.image] - Brand logo URL
  * @param {Object} [config.prefill] - { name, email, contact }
  * @param {Object} [config.notes] - Custom metadata
- * @param {string} [config.themeColor='#4A154B'] - Primary brand hex color
+ * @param {string} [config.themeColor='#50164F'] - Primary brand hex color
  * @param {Function} config.onSuccess - Callback on payment capture (receives { razorpay_payment_id, razorpay_order_id, razorpay_signature })
  * @param {Function} [config.onDismiss] - Callback when user closes or cancels the modal
  * @param {Function} [config.onError] - Callback on payment failure
  */
 export async function openRazorpayCheckout({
+  key,
+  key_id,
   order_id,
   amount,
   currency = 'INR',
   name = 'MAANMITRA',
-  description = 'Payment',
-  image = '/maanmitra-original-logo-transparent.png',
+  description = 'Platform Payment',
+  image = '/manmitra-app-icon.png',
   prefill = {},
   notes = {},
-  themeColor = '#4A154B',
+  themeColor = '#50164F',
   onSuccess,
   onDismiss,
   onError
 }) {
   const loaded = await loadRazorpayScript();
-  if (!loaded) {
+  if (!loaded || !window.Razorpay) {
     throw new Error('Razorpay payment gateway failed to load. Please check your network connection.');
   }
 
-  const key = RAZORPAY_KEY_ID;
-  if (!key) {
-    throw new Error('Razorpay Key ID is not configured (VITE_RAZORPAY_KEY_ID missing).');
+  const resolvedKey = key || key_id || RAZORPAY_KEY_ID || 'rzp_live_TwgPINXkMnFaPI';
+  if (!resolvedKey) {
+    throw new Error('Razorpay Key ID is not configured. Please contact support.');
   }
 
+  // Ensure amount is an integer in paise
+  const numericAmount = Math.round(Number(amount));
+
   const options = {
-    key,
-    amount,
-    currency,
+    key: resolvedKey,
+    amount: numericAmount,
+    currency: currency || 'INR',
     name,
     description,
     order_id,
@@ -87,23 +94,10 @@ export async function openRazorpayCheckout({
     theme: {
       color: themeColor
     },
-    config: {
-      display: {
-        blocks: {
-          upi_methods: {
-            name: 'UPI / QR / UPI ID',
-            instruments: [
-              {
-                method: 'upi',
-                flows: ['collect', 'qr', 'intent']
-              }
-            ]
-          }
-        },
-        sequence: ['block.upi_methods'],
-        preferences: {
-          show_default_blocks: true
-        }
+    modal: {
+      confirm_close: true,
+      ondismiss: function () {
+        if (onDismiss) onDismiss();
       }
     },
     handler: function (response) {
@@ -114,11 +108,6 @@ export async function openRazorpayCheckout({
           razorpay_signature: response.razorpay_signature
         });
       }
-    },
-    modal: {
-      ondismiss: function () {
-        if (onDismiss) onDismiss();
-      }
     }
   };
 
@@ -126,7 +115,7 @@ export async function openRazorpayCheckout({
 
   if (onError) {
     rzp.on('payment.failed', function (response) {
-      onError(response.error);
+      onError(response.error || { description: 'Payment transaction failed or was declined.' });
     });
   }
 

@@ -126,6 +126,7 @@ export default function UserWalletPage() {
 
       // 2. Open Razorpay Checkout modal
       await openRazorpayCheckout({
+        key: orderData.key_id,
         order_id: orderData.order_id,
         amount: orderData.amount,
         currency: 'INR',

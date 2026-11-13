@@ -264,18 +264,23 @@ export default function PartnerDetailPage() {
 
       const orderData = await orderRes.json();
 
-      // 3. Process payment: In test/mock mode or via Razorpay Checkout
-      if (window.Razorpay && orderData.key_id && !orderData.key_id.includes('dummy')) {
-        const options = {
-          key: orderData.key_id,
-          amount: orderData.amount,
-          currency: orderData.currency || 'INR',
-          name: 'MAANMITRA',
-          description: `Conversation Session with ${partner.display_name}`,
-          order_id: orderData.order_id,
-          handler: async function (response) {
-            // Verify payment signature
-            await fetch(`${API_BASE}/payments/verify`, {
+      // 3. Process payment via Razorpay Standard Checkout
+      await openRazorpayCheckout({
+        key: orderData.key_id,
+        order_id: orderData.order_id,
+        amount: orderData.amount, // amount in paise
+        currency: orderData.currency || 'INR',
+        name: 'MAANMITRA',
+        description: `Session Booking with ${partner.display_name}`,
+        prefill: {
+          name: user.full_name || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        onSuccess: async (rzpResponse) => {
+          setBookingLoading(true);
+          try {
+            const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -283,46 +288,54 @@ export default function PartnerDetailPage() {
               },
               body: JSON.stringify({
                 booking_id: bookingData.id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_order_id: rzpResponse.razorpay_order_id,
+                razorpay_payment_id: rzpResponse.razorpay_payment_id,
+                razorpay_signature: rzpResponse.razorpay_signature
               })
             });
-            setSuccessMsg('Booking confirmed! Redirecting to your dashboard...');
-            setTimeout(() => navigate('/user/bookings'), 1500);
-          },
-          prefill: {
-            name: user.full_name,
-            email: user.email,
-            contact: user.phone || '9876543210'
-          },
-          theme: { color: '#4A154B' }
-        };
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } else {
-        // Automatic Test verification for dev environment
-        const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            booking_id: bookingData.id,
-            razorpay_order_id: orderData.order_id || `order_test_${Date.now()}`,
-            razorpay_payment_id: `pay_test_${Date.now()}`,
-            razorpay_signature: 'test_signature_verified'
-          })
-        });
 
-        if (verifyRes.ok) {
-          setSuccessMsg('Booking & Payment Confirmed Successfully! Redirecting to your bookings...');
-          setTimeout(() => navigate('/user/bookings'), 1500);
-        } else {
-          throw new Error('Payment confirmation failed.');
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok) {
+              setSuccessMsg('Payment Successful & Booking Confirmed! Redirecting to your dashboard...');
+              setTimeout(() => navigate('/user/bookings'), 1500);
+            } else {
+              setErrorMsg(verifyData.detail || 'Payment verification failed. Please contact support.');
+            }
+          } catch (vErr) {
+            setErrorMsg('Network error verifying payment. Please check your bookings page.');
+          } finally {
+            setBookingLoading(false);
+          }
+        },
+        onDismiss: async () => {
+          setBookingLoading(false);
+          setErrorMsg('Payment cancelled. Your booking was not completed.');
+          try {
+            await fetch(`${API_BASE}/payments/mark-failed`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ booking_id: bookingData.id, reason: 'cancelled_by_user' })
+            });
+          } catch (_) {}
+        },
+        onError: async (payErr) => {
+          setBookingLoading(false);
+          setErrorMsg(payErr?.description || 'Payment failed. Please try with another payment method.');
+          try {
+            await fetch(`${API_BASE}/payments/mark-failed`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ booking_id: bookingData.id, reason: payErr?.description || 'gateway_failure' })
+            });
+          } catch (_) {}
         }
-      }
+      });
 
     } catch (err) {
       setErrorMsg(err.message || 'Booking process failed. Please try again.');

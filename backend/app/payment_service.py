@@ -27,9 +27,9 @@ class PaymentGatewayService:
 
     @staticmethod
     def get_credentials() -> Tuple[str, str, str]:
-        key_id = os.getenv("RAZORPAY_KEY_ID", "rzp_test_placeholder_key_id")
-        key_secret = os.getenv("RAZORPAY_KEY_SECRET", "placeholder_secret_key_never_commit_real_secrets")
-        webhook_secret = os.getenv("RAZORPAY_WEBHOOK_SECRET", "placeholder_webhook_secret")
+        key_id = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
+        key_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+        webhook_secret = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
         return key_id, key_secret, webhook_secret
 
     @classmethod

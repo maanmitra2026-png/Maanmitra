@@ -31,70 +31,49 @@ export default function CheckoutModal({
       setSubmitting(true);
       setErrorMsg(null);
 
-      if (RAZORPAY_KEY_ID && !is_mock) {
-        await openRazorpayCheckout({
-          order_id,
-          amount,
-          currency: currency || 'INR',
-          name: 'MAANMITRA',
-          description: `Subscription: ${plan_name}`,
-          onSuccess: async (rzpRes) => {
-            try {
-              const res = await api('/subscriptions/verify', {
-                method: 'POST',
-                body: {
-                  provider_order_id: rzpRes.razorpay_order_id,
-                  provider_payment_id: rzpRes.razorpay_payment_id,
-                  provider_signature: rzpRes.razorpay_signature
-                }
-              });
-              notify(res.message || 'Payment successfully verified! Your subscription is now active.');
-              if (onPaymentSuccess) {
-                onPaymentSuccess(res.subscription);
+      await openRazorpayCheckout({
+        key: checkoutData.key_id || RAZORPAY_KEY_ID,
+        order_id,
+        amount,
+        currency: currency || 'INR',
+        name: 'MAANMITRA',
+        description: `Subscription: ${plan_name}`,
+        onSuccess: async (rzpRes) => {
+          try {
+            const res = await api('/subscriptions/verify', {
+              method: 'POST',
+              body: {
+                razorpay_order_id: rzpRes.razorpay_order_id,
+                razorpay_payment_id: rzpRes.razorpay_payment_id,
+                razorpay_signature: rzpRes.razorpay_signature
               }
-              onClose();
-            } catch (err) {
-              setErrorMsg(err.message || 'Payment verification failed.');
-              notify(err.message || 'Payment verification failed', true);
-            } finally {
-              setSubmitting(false);
+            });
+            notify(res.message || 'Payment successfully verified! Your subscription is now active.');
+            if (onPaymentSuccess) {
+              onPaymentSuccess(res.subscription);
             }
-          },
-          onDismiss: () => {
+            onClose();
+          } catch (err) {
+            setErrorMsg(err.message || 'Payment verification failed.');
+            notify(err.message || 'Payment verification failed', true);
+          } finally {
             setSubmitting(false);
-          },
-          onError: (err) => {
-            setSubmitting(false);
-            const msg = err?.description || 'Payment was cancelled or unsuccessful.';
-            setErrorMsg(msg);
-            notify(msg, true);
           }
-        });
-        return;
-      }
-
-      // Mock / fallback mode
-      const mockPaymentId = `pay_mock_${Date.now()}`;
-      const mockSignature = `mock_signature_${order_id}`;
-
-      const res = await api('/subscriptions/verify', {
-        method: 'POST',
-        body: {
-          provider_order_id: order_id,
-          provider_payment_id: mockPaymentId,
-          provider_signature: mockSignature
+        },
+        onDismiss: () => {
+          setSubmitting(false);
+          setErrorMsg('Payment was cancelled. You can retry when you are ready.');
+        },
+        onError: (err) => {
+          setSubmitting(false);
+          const msg = err?.description || 'Payment was cancelled or unsuccessful.';
+          setErrorMsg(msg);
+          notify(msg, true);
         }
       });
-
-      notify(res.message || 'Payment successfully verified! Your subscription is now active.');
-      if (onPaymentSuccess) {
-        onPaymentSuccess(res.subscription);
-      }
-      onClose();
     } catch (err) {
-      setErrorMsg(err.message || 'Payment verification failed.');
-      notify(err.message || 'Payment verification failed', true);
-    } finally {
+      setErrorMsg(err.message || 'Payment initiation failed.');
+      notify(err.message || 'Payment initiation failed', true);
       setSubmitting(false);
     }
   }

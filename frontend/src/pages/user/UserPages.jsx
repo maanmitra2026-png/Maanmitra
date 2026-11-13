@@ -439,6 +439,7 @@ export function UserMatchChatPage() {
       const orderData = await orderRes.json();
 
       await openRazorpayCheckout({
+        key: orderData.key_id,
         order_id: orderData.order_id,
         amount: orderData.amount,
         name: 'MAANMITRA Wallet',
@@ -1329,6 +1330,341 @@ export function UserSessionsPage() {
           </button>
         </div>
       )}
+    </DashboardLayout>
+  );
+}
+
+// ==============================================================================
+// 10. USER BOOKINGS & PAYMENT STATUS (/user/bookings)
+// ==============================================================================
+export function UserBookingsPage() {
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [payingBookingId, setPayingBookingId] = useState(null);
+  const [statusAlert, setStatusAlert] = useState(null);
+
+  const fetchBookings = () => {
+    if (!token) return;
+    setLoading(true);
+    fetch(`${API_BASE}/user/bookings`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.ok ? res.json() : [])
+      .then(d => {
+        setBookings(Array.isArray(d) ? d : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, [token]);
+
+  const handlePayNow = async (b) => {
+    try {
+      setPayingBookingId(b.id);
+      setStatusAlert(null);
+
+      // Create Razorpay order
+      const orderRes = await fetch(`${API_BASE}/payments/create-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ booking_id: b.id })
+      });
+
+      if (!orderRes.ok) {
+        const err = await orderRes.json();
+        throw new Error(err.detail || 'Could not initiate payment order.');
+      }
+
+      const orderData = await orderRes.json();
+
+      await openRazorpayCheckout({
+        key: orderData.key_id,
+        order_id: orderData.order_id,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        name: 'MAANMITRA',
+        description: `Booking ${b.booking_code} with ${b.partner_name}`,
+        prefill: {
+          name: user?.full_name || '',
+          email: user?.email || '',
+          contact: user?.phone || ''
+        },
+        onSuccess: async (rzpRes) => {
+          try {
+            const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                booking_id: b.id,
+                razorpay_order_id: rzpRes.razorpay_order_id,
+                razorpay_payment_id: rzpRes.razorpay_payment_id,
+                razorpay_signature: rzpRes.razorpay_signature
+              })
+            });
+
+            if (verifyRes.ok) {
+              setStatusAlert({ type: 'success', text: `Payment successful! Booking ${b.booking_code} is now confirmed.` });
+              fetchBookings();
+            } else {
+              const err = await verifyRes.json();
+              setStatusAlert({ type: 'error', text: err.detail || 'Payment verification failed.' });
+            }
+          } catch (vErr) {
+            setStatusAlert({ type: 'error', text: 'Network error verifying transaction.' });
+          } finally {
+            setPayingBookingId(null);
+          }
+        },
+        onDismiss: () => {
+          setPayingBookingId(null);
+          setStatusAlert({ type: 'info', text: 'Payment window was closed. You can complete payment anytime.' });
+        },
+        onError: (err) => {
+          setPayingBookingId(null);
+          setStatusAlert({ type: 'error', text: err?.description || 'Payment was unsuccessful.' });
+        }
+      });
+    } catch (err) {
+      setPayingBookingId(null);
+      setStatusAlert({ type: 'error', text: err.message || 'Payment initiation failed.' });
+    }
+  };
+
+  const paymentBadge = (status) => {
+    const isPaid = status === 'completed' || status === 'captured';
+    const isFailed = status === 'failed';
+    const bg = isPaid ? '#D1FAE5' : isFailed ? '#FEE2E2' : '#FEF3C7';
+    const color = isPaid ? '#065F46' : isFailed ? '#991B1B' : '#92400E';
+    const text = isPaid ? 'Paid' : isFailed ? 'Failed' : 'Payment Pending';
+    return (
+      <span style={{ background: bg, color, fontSize: '0.74rem', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        {isPaid && <CheckCircle size={12} />}
+        {text}
+      </span>
+    );
+  };
+
+  const bookingBadge = (status) => {
+    const map = {
+      confirmed: { bg: '#E0E7FF', color: '#3730A3', text: 'Confirmed' },
+      completed: { bg: '#F3F4F6', color: '#374151', text: 'Completed' },
+      pending: { bg: '#FEF3C7', color: '#92400E', text: 'Requested' },
+      cancelled: { bg: '#FEE2E2', color: '#991B1B', text: 'Cancelled' }
+    };
+    const s = map[status] || { bg: '#F3F4F6', color: '#374151', text: status || 'Pending' };
+    return (
+      <span style={{ background: s.bg, color: s.color, fontSize: '0.74rem', fontWeight: 800, padding: '4px 10px', borderRadius: '12px' }}>
+        {s.text}
+      </span>
+    );
+  };
+
+  const totalSpent = bookings.reduce((sum, b) => b.payment_status === 'completed' ? sum + (b.total_amount || 0) : sum, 0);
+
+  return (
+    <DashboardLayout role="user">
+      <div className="mm-dashboard-header">
+        <div>
+          <h1 className="mm-dashboard-title">My Bookings &amp; Payment Status</h1>
+          <p className="mm-dashboard-subtitle">Track your session appointments and payments secured by Razorpay</p>
+        </div>
+        <button
+          onClick={() => navigate('/explore')}
+          className="mm-btn-primary mm-btn-sm"
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <Sparkles size={14} /> Book a Companion
+        </button>
+      </div>
+
+      {statusAlert && (
+        <div style={{
+          marginBottom: '20px',
+          padding: '12px 18px',
+          borderRadius: '12px',
+          background: statusAlert.type === 'success' ? '#D1FAE5' : statusAlert.type === 'info' ? '#EFF6FF' : '#FEE2E2',
+          color: statusAlert.type === 'success' ? '#065F46' : statusAlert.type === 'info' ? '#1E40AF' : '#991B1B',
+          fontWeight: 600,
+          fontSize: '0.9rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{statusAlert.text}</span>
+          <button onClick={() => setStatusAlert(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 800 }}>✕</button>
+        </div>
+      )}
+
+      {/* Summary KPI Tiles */}
+      <div className="mm-stats-grid" style={{ marginBottom: '24px' }}>
+        <div className="mm-stat-tile">
+          <div className="mm-stat-icon-wrap" style={{ background: '#F3E8F5', color: '#50164F' }}>
+            <Calendar size={20} />
+          </div>
+          <div className="mm-stat-info">
+            <span className="mm-stat-label">Total Bookings</span>
+            <span className="mm-stat-val">{bookings.length}</span>
+          </div>
+        </div>
+
+        <div className="mm-stat-tile">
+          <div className="mm-stat-icon-wrap" style={{ background: '#E8F5E9', color: '#059669' }}>
+            <ShieldCheck size={20} />
+          </div>
+          <div className="mm-stat-info">
+            <span className="mm-stat-label">Total Paid (Razorpay)</span>
+            <span className="mm-stat-val">₹{totalSpent.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div className="mm-stat-tile" style={{ cursor: 'pointer' }} onClick={() => navigate('/user/wallet')}>
+          <div className="mm-stat-icon-wrap" style={{ background: '#FFF1F5', color: '#E91E63' }}>
+            <Wallet size={20} />
+          </div>
+          <div className="mm-stat-info">
+            <span className="mm-stat-label">Wallet Balance</span>
+            <span className="mm-stat-val">₹{user?.wallet_balance_inr || 0}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bookings Table */}
+      <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '24px', border: '1px solid #F0DCE8', boxShadow: '0 4px 18px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#50164F', margin: 0 }}>
+            Recent Bookings &amp; Payment Records
+          </h2>
+          <button
+            onClick={fetchBookings}
+            style={{ background: '#FBF5F9', border: '1px solid #EEDBCF', borderRadius: '8px', padding: '6px 12px', fontSize: '0.78rem', color: '#50164F', fontWeight: 700, cursor: 'pointer' }}
+          >
+            ↻ Refresh Status
+          </button>
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}><div className="mm-spinner" /></div>
+        ) : bookings.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '50px 20px', color: '#8E738A' }}>
+            <Calendar size={42} color="#D8B36A" style={{ marginBottom: '10px' }} />
+            <h3 style={{ color: '#50164F', margin: '0 0 6px' }}>No bookings found</h3>
+            <p style={{ margin: '0 0 16px', fontSize: '0.88rem' }}>Browse verified companions and schedule your first conversation!</p>
+            <button onClick={() => navigate('/explore')} className="mm-btn-primary mm-btn-sm">
+              Explore Companions
+            </button>
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #F0DCE8', color: '#8E738A', fontSize: '0.76rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '12px' }}>Booking Code</th>
+                  <th style={{ padding: '12px' }}>Companion</th>
+                  <th style={{ padding: '12px' }}>Scheduled For</th>
+                  <th style={{ padding: '12px' }}>Amount</th>
+                  <th style={{ padding: '12px' }}>Payment Status</th>
+                  <th style={{ padding: '12px' }}>Booking Status</th>
+                  <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((b) => {
+                  const isPaid = b.payment_status === 'completed';
+                  return (
+                    <tr key={b.id} style={{ borderBottom: '1px solid #FAF0F5' }}>
+                      <td style={{ padding: '14px 12px', fontWeight: 800, color: '#50164F' }}>
+                        {b.booking_code || `MM-BK-${b.id}`}
+                      </td>
+                      <td style={{ padding: '14px 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img
+                            src={b.partner_photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                            alt=""
+                            style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: 700, color: '#2D0A31' }}>{b.partner_name}</div>
+                            <div style={{ fontSize: '0.74rem', color: '#8E738A', textTransform: 'capitalize' }}>
+                              {b.communication_type || 'Voice & Chat'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 12px', color: '#555' }}>
+                        {b.scheduled_start ? new Date(b.scheduled_start).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Flexible'}
+                      </td>
+                      <td style={{ padding: '14px 12px', fontWeight: 800, color: '#50164F' }}>
+                        ₹{b.total_amount || 0}
+                      </td>
+                      <td style={{ padding: '14px 12px' }}>
+                        {paymentBadge(b.payment_status)}
+                      </td>
+                      <td style={{ padding: '14px 12px' }}>
+                        {bookingBadge(b.booking_status)}
+                      </td>
+                      <td style={{ padding: '14px 12px', textAlign: 'right' }}>
+                        {!isPaid ? (
+                          <button
+                            onClick={() => handlePayNow(b)}
+                            disabled={payingBookingId === b.id}
+                            style={{
+                              background: '#50164F',
+                              color: '#FFFFFF',
+                              border: 'none',
+                              borderRadius: '9999px',
+                              padding: '6px 14px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              boxShadow: '0 2px 8px rgba(80, 22, 79, 0.2)'
+                            }}
+                          >
+                            <CreditCard size={12} />
+                            {payingBookingId === b.id ? 'Connecting...' : 'Pay with Razorpay'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate('/user/matches')}
+                            style={{
+                              background: '#FDF2F8',
+                              color: '#50164F',
+                              border: '1.2px solid #EEDBCF',
+                              borderRadius: '9999px',
+                              padding: '6px 14px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <MessageSquare size={12} /> Open Chat
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </DashboardLayout>
   );
 }

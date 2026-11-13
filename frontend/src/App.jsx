@@ -87,7 +87,8 @@ import {
   UserAIPage,
   UserProfilePage,
   UserSubscriptionStatusPage,
-  UserSessionsPage
+  UserSessionsPage,
+  UserBookingsPage
 } from './pages/user/UserPages';
 import UserSubscriptionPage from './pages/user/UserSubscription';
 import UserWalletPage from './pages/user/UserWalletPage';
@@ -516,6 +517,11 @@ export default function App() {
           <Route path="/user/sessions" element={
             <RequireAuth role="user">
               <UserSessionsPage />
+            </RequireAuth>
+          } />
+          <Route path="/user/bookings" element={
+            <RequireAuth role="user">
+              <UserBookingsPage />
             </RequireAuth>
           } />
 

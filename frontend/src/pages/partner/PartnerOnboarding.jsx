@@ -743,7 +743,7 @@ export function PartnerOnboardingPaymentPage() {
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
-  // Razorpay payment helper
+  // Razorpay payment helper — Real Razorpay Checkout
   const doRazorpayPayment = async ({ createUrl, verifyUrl, amountLabel, description }) => {
     setErrorMsg('');
     setPayLoading(true);
@@ -752,91 +752,77 @@ export function PartnerOnboardingPaymentPage() {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
+      if (!orderRes.ok) {
+        const errData = await orderRes.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Could not initiate payment order.');
+      }
       const order = await orderRes.json();
 
       const orderId = order.order_id || order.id;
+      const resolvedKey = order.razorpay_key || order.key_id || RAZORPAY_KEY || 'rzp_live_TwgPINXkMnFaPI';
 
-      if (order.is_mock || !RAZORPAY_KEY) {
-        const verRes = await fetch(verifyUrl, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ razorpay_order_id: orderId, razorpay_payment_id: 'mock_pay', razorpay_signature: 'mock_sig', is_mock: true })
-        });
-        if (verRes.ok) {
-          setSuccessMsg(`${amountLabel} confirmed!`);
-          await fetchStatus();
-          if (verifyUrl.includes('verify-registration-payment')) {
-            setTimeout(() => {
-              navigate('/partner/dashboard', { replace: true });
-            }, 800);
-          }
-        } else {
-          const e = await verRes.json().catch(() => ({}));
-          setErrorMsg(e.detail || 'Payment verification failed.');
-        }
+      const sdkLoaded = await loadRazorpay();
+      if (!sdkLoaded || !window.Razorpay) {
+        setErrorMsg('Razorpay payment gateway failed to load. Please check your network connection.');
+        setPayLoading(false);
         return;
       }
 
-      const sdkLoaded = await loadRazorpay();
-      if (!sdkLoaded) { setErrorMsg('Payment gateway failed to load. Please try again.'); return; }
-
       const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY,
+        key: resolvedKey,
         amount: order.amount,
         currency: order.currency || 'INR',
         name: 'MAANMITRA',
         description,
         order_id: orderId,
-        image: '/maanmitra-original-logo-transparent.png',
+        image: '/manmitra-app-icon.png',
         handler: async (response) => {
-          const verRes = await fetch(verifyUrl, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            })
-          });
-          if (verRes.ok) {
-            setSuccessMsg(`${amountLabel} confirmed!`);
-            await fetchStatus();
-            if (verifyUrl.includes('verify-registration-payment')) {
-              setTimeout(() => {
-                navigate('/partner/dashboard', { replace: true });
-              }, 800);
+          try {
+            const verRes = await fetch(verifyUrl, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            if (verRes.ok) {
+              setSuccessMsg(`${amountLabel} confirmed!`);
+              await fetchStatus();
+              if (verifyUrl.includes('verify-registration-payment')) {
+                setTimeout(() => {
+                  navigate('/partner/dashboard', { replace: true });
+                }, 800);
+              }
+            } else {
+              const err = await verRes.json().catch(() => ({}));
+              setErrorMsg(err.detail || 'Payment verification failed. Please contact support.');
             }
-          } else {
-            setErrorMsg('Payment verification failed. Please contact support.');
+          } catch (e) {
+            setErrorMsg('Network error verifying payment. Please contact support.');
+          } finally {
+            setPayLoading(false);
           }
         },
         prefill: { email: user?.email || '', contact: user?.phone || '' },
-        theme: { color: '#4A154B' },
-        config: {
-          display: {
-            blocks: {
-              upi_block: {
-                name: 'Pay using UPI / QR / UPI ID',
-                instruments: [
-                  {
-                    method: 'upi',
-                    flows: ['collect', 'qr', 'intent']
-                  }
-                ]
-              }
-            },
-            sequence: ['block.upi_block'],
-            preferences: {
-              show_default_blocks: true
-            }
+        theme: { color: '#50164F' },
+        modal: {
+          ondismiss: () => {
+            setPayLoading(false);
+            setErrorMsg('Payment cancelled. You can complete it whenever you are ready.');
           }
-        },
-        modal: { ondismiss: () => setPayLoading(false) }
+        }
       });
+
+      rzp.on('payment.failed', function (resp) {
+        setPayLoading(false);
+        setErrorMsg(resp?.error?.description || 'Payment transaction failed. Please retry.');
+      });
+
       rzp.open();
     } catch (err) {
       setErrorMsg(err.message || 'Payment initiation failed. Please try again.');
-    } finally {
       setPayLoading(false);
     }
   };

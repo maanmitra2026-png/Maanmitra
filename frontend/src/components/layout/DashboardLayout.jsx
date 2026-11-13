@@ -102,6 +102,7 @@ export default function DashboardLayout({ children, role }) {
       {
         title: 'ACCOUNT & WALLET',
         items: [
+          { label: 'My Bookings & Payments', path: '/user/bookings', icon: Calendar },
           { label: 'My Wallet & Top-Up', path: '/user/wallet', icon: Wallet },
           { label: 'Session History', path: '/user/sessions', icon: Clock },
           { label: 'Membership', path: '/user/subscription', icon: ShieldCheck },
