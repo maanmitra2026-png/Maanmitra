@@ -694,19 +694,6 @@ export function PartnerRegisterPage() {
 // 2. PARTNER ONBOARDING PAYMENT PAGE (/partner/onboarding)
 // ---------------------------------------------------------------------------
 
-const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
-
-function loadRazorpay() {
-  return new Promise((resolve) => {
-    if (window.Razorpay) { resolve(true); return; }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
-
 export function PartnerOnboardingPaymentPage() {
   const { user, token, setUser } = useAuth();
   const navigate = useNavigate();
@@ -780,8 +767,8 @@ export function PartnerOnboardingPaymentPage() {
     }
   }, [token, fetchStatus, navigate]);
 
-  // Razorpay payment helper — Real Razorpay Checkout
-  const doRazorpayPayment = async ({ createUrl, verifyUrl, amountLabel, description }) => {
+  // Cashfree payment helper — Real Cashfree PG Web Checkout
+  const doPayment = async ({ createUrl, verifyUrl, amountLabel, description }) => {
     setErrorMsg('');
     setPayLoading(true);
     try {
@@ -794,138 +781,53 @@ export function PartnerOnboardingPaymentPage() {
         throw new Error(errData.detail || 'Could not initiate payment order.');
       }
       const order = await orderRes.json();
-
       const rawOrderId = order.order_id || order.id || '';
 
-      // --- Cashfree Payment Gateway Checkout ---
-      if (order.gateway === 'cashfree' || order.payment_session_id) {
-        try {
-          const { openCashfreeCheckout } = await import('../../utils/cashfree');
-          await openCashfreeCheckout({
-            paymentSessionId: order.payment_session_id,
-            mode: order.environment || 'production',
-            redirectTarget: '_modal',
-          });
-
-          const verRes = await fetch(verifyUrl, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              order_id: rawOrderId,
-              gateway: 'cashfree',
-            })
-          });
-
-          if (verRes.ok) {
-            setSuccessMsg(`${amountLabel} confirmed via Cashfree!`);
-            await fetchStatus();
-            if (verifyUrl.includes('verify-registration-payment')) {
-              setTimeout(() => {
-                navigate('/partner/dashboard', { replace: true });
-              }, 800);
-            }
-          } else {
-            const err = await verRes.json().catch(() => ({}));
-            setErrorMsg(err.detail || 'Payment verification failed. Please contact support.');
-          }
-        } catch (cfe) {
-          console.error('Cashfree checkout error:', cfe);
-          setErrorMsg(cfe?.message || 'Payment window closed. Please retry when ready.');
-        } finally {
-          setPayLoading(false);
-        }
-        return;
+      if (!order.payment_session_id) {
+        throw new Error(
+          order.detail ||
+          'Cashfree payment session was not generated. Please ensure CASHFREE_APP_ID and CASHFREE_SECRET_KEY are set in the backend environment variables.'
+        );
       }
 
-      if (order.payment_link_url) {
-        setHostedPayUrl(order.payment_link_url);
-      }
-
-      const isRealRazorpayOrder = rawOrderId && String(rawOrderId).startsWith('order_') && !String(rawOrderId).startsWith('order_mock_');
-
-      const rawKey = order.razorpay_key || order.key_id || RAZORPAY_KEY;
-      const resolvedKey = (rawKey && !rawKey.includes('mock') && !rawKey.includes('test')) ? rawKey : 'rzp_live_TwgPINXkMnFaPI';
-
-      const sdkLoaded = await loadRazorpay();
-      if (!sdkLoaded || !window.Razorpay) {
-        if (order.payment_link_url) {
-          window.location.href = order.payment_link_url;
-          return;
-        }
-        setErrorMsg('Razorpay payment gateway failed to load. Please check your network connection.');
-        setPayLoading(false);
-        return;
-      }
-
-      const rzpOptions = {
-        key: resolvedKey,
-        amount: order.amount,
-        currency: order.currency || 'INR',
-        name: 'MAANMITRA',
-        description,
-        image: '/manmitra-app-icon.png',
-        handler: async (response) => {
-          try {
-            const verRes = await fetch(verifyUrl, {
-              method: 'POST',
-              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id || rawOrderId,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature || ''
-              })
-            });
-            if (verRes.ok) {
-              setSuccessMsg(`${amountLabel} confirmed!`);
-              await fetchStatus();
-              if (verifyUrl.includes('verify-registration-payment')) {
-                setTimeout(() => {
-                  navigate('/partner/dashboard', { replace: true });
-                }, 800);
-              }
-            } else {
-              const err = await verRes.json().catch(() => ({}));
-              setErrorMsg(err.detail || 'Payment verification failed. Please contact support.');
-            }
-          } catch (e) {
-            setErrorMsg('Network error verifying payment. Please contact support.');
-          } finally {
-            setPayLoading(false);
-          }
-        },
-        prefill: { email: user?.email || '', contact: user?.phone || '' },
-        theme: { color: '#50164F' },
-        modal: {
-          ondismiss: () => {
-            setPayLoading(false);
-            setErrorMsg('Payment cancelled. You can complete it whenever you are ready.');
-          }
-        }
-      };
-
-      if (isRealRazorpayOrder) {
-        rzpOptions.order_id = rawOrderId;
-      }
-
-      const rzp = new window.Razorpay(rzpOptions);
-
-      rzp.on('payment.failed', function (resp) {
-        setPayLoading(false);
-        const desc = resp?.error?.description || '';
-        // If Razorpay blocks due to website mismatch, seamlessly redirect to Razorpay hosted payment link
-        if (order.payment_link_url && (desc.toLowerCase().includes('website') || desc.toLowerCase().includes('registered') || desc.toLowerCase().includes('match') || desc.toLowerCase().includes('blocked'))) {
-          window.location.href = order.payment_link_url;
-          return;
-        }
-        setErrorMsg(desc || 'Payment transaction failed. Please retry.');
+      // --- Cashfree Payment Gateway Checkout Modal ---
+      const { openCashfreeCheckout } = await import('../../utils/cashfree');
+      await openCashfreeCheckout({
+        paymentSessionId: order.payment_session_id,
+        mode: order.environment || 'production',
+        redirectTarget: '_modal',
       });
 
-      rzp.open();
-    } catch (err) {
-      setErrorMsg(err.message || 'Payment initiation failed. Please try again.');
+      const verRes = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: rawOrderId,
+          gateway: 'cashfree',
+        })
+      });
+
+      if (verRes.ok) {
+        setSuccessMsg(`${amountLabel} confirmed via Cashfree!`);
+        await fetchStatus();
+        if (verifyUrl.includes('verify-registration-payment')) {
+          setTimeout(() => {
+            navigate('/partner/dashboard', { replace: true });
+          }, 800);
+        }
+      } else {
+        const err = await verRes.json().catch(() => ({}));
+        setErrorMsg(err.detail || 'Payment verification failed. Please contact support.');
+      }
+    } catch (cfe) {
+      console.error('Cashfree checkout error:', cfe);
+      setErrorMsg(cfe?.message || 'Payment window closed. Please retry when ready.');
+    } finally {
       setPayLoading(false);
     }
   };
+
+  const doRazorpayPayment = doPayment;
 
   const s = onboardingStatus;
   const nextStep = s?.next_step;
@@ -1055,7 +957,7 @@ export function PartnerOnboardingPaymentPage() {
             </div>
 
             <button
-              onClick={() => doRazorpayPayment({
+              onClick={() => doPayment({
                 createUrl: `${API_BASE}/partner/onboarding/create-registration-order`,
                 verifyUrl: `${API_BASE}/partner/onboarding/verify-registration-payment`,
                 amountLabel: '₹99 registration fee',
@@ -1073,27 +975,6 @@ export function PartnerOnboardingPaymentPage() {
               <CreditCard size={20} />
               {payLoading ? 'Processing...' : 'Pay ₹99 & Create Profile'}
             </button>
-
-            {hostedPayUrl && (
-              <a
-                href={hostedPayUrl}
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  marginTop: '12px',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  background: '#FFF9F5',
-                  border: '1.5px solid #D8B36A',
-                  color: '#50164F',
-                  fontWeight: '700',
-                  fontSize: '0.9rem',
-                  textDecoration: 'none'
-                }}
-              >
-                Pay via Direct Razorpay UPI Link (GPay / PhonePe / QR) &rarr;
-              </a>
-            )}
           </div>
 
         ) : nextStep === 'awaiting_zoom_schedule' ? (
@@ -1276,7 +1157,7 @@ export function PartnerOnboardingPaymentPage() {
               </div>
 
               <button
-                onClick={() => doRazorpayPayment({
+                onClick={() => doPayment({
                   createUrl: `${API_BASE}/partner/onboarding/create-activation-order`,
                   verifyUrl: `${API_BASE}/partner/onboarding/verify-activation-payment`,
                   amountLabel: '₹499 activation fee',
@@ -1294,27 +1175,6 @@ export function PartnerOnboardingPaymentPage() {
                 <Zap size={20} />
                 {payLoading ? 'Processing...' : 'Pay ₹499 & Activate Now'}
               </button>
-
-              {hostedPayUrl && (
-                <a
-                  href={hostedPayUrl}
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    marginTop: '12px',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    background: '#FFF9F5',
-                    border: '1.5px solid #E91E63',
-                    color: '#D81B60',
-                    fontWeight: '700',
-                    fontSize: '0.9rem',
-                    textDecoration: 'none'
-                  }}
-                >
-                  Pay via Direct Razorpay UPI Link (GPay / PhonePe / QR) &rarr;
-                </a>
-              )}
             </div>
           </div>
 
@@ -1336,7 +1196,7 @@ export function PartnerOnboardingPaymentPage() {
         )}
 
         <p style={{ textAlign: 'center', fontSize: '0.80rem', color: '#665365', marginTop: '16px', lineHeight: 1.5 }}>
-          Payments securely processed by Razorpay for <strong>DESTINATION POINT</strong> (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#50164F', fontWeight: 700 }}>destinationpoint.org</a>). Need help?{' '}
+          Payments securely processed by <strong>Cashfree Payment Gateway</strong>. Need help?{' '}
           <a href="mailto:support@maanmitra.com" style={{ color: '#4A154B' }}>Contact Support</a>
         </p>
       </main>

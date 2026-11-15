@@ -53,6 +53,45 @@ class PaymentGatewayService:
         receipt = f"rcpt_u{user_id}_{uuid.uuid4().hex[:10]}"
         key_id, key_secret, _ = cls.get_credentials()
 
+        gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+        if gateway_pref == "cashfree":
+            from app.cashfree_service import CashfreeGatewayService
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=receipt,
+                amount_inr=plan.amount_inr,
+                customer_id=str(user_id),
+                customer_name=f"User {user_id}",
+                customer_email=f"user{user_id}@maanmitra.com",
+                customer_phone="9876543210",
+                order_note=f"Subscription: {plan.name}"
+            )
+            provider_order_id = cf_order["order_id"]
+            transaction = PaymentTransaction(
+                user_id=user_id,
+                provider_order_id=provider_order_id,
+                amount=plan.amount_inr,
+                currency="INR",
+                status="created",
+                idempotency_key=f"checkout_{provider_order_id}"
+            )
+            db.add(transaction)
+            db.commit()
+            db.refresh(transaction)
+            return {
+                "order_id": provider_order_id,
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "amount": amount_paise,
+                "currency": "INR",
+                "key_id": key_id,
+                "plan_code": plan.code,
+                "plan_name": plan.name,
+                "amount_inr": plan.amount_inr,
+                "billing_period": plan.billing_period,
+                "is_mock": cf_order.get("is_mock", False)
+            }
+
         provider_order_id = None
         if cls.is_live_configured():
             try:

@@ -21,7 +21,6 @@ import {
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE } from '../../apiConfig';
-import { openRazorpayCheckout } from '../../utils/razorpay';
 
 export default function UserWalletPage() {
   const { user, token, setUser } = useAuth();
@@ -165,65 +164,7 @@ export default function UserWalletPage() {
         return;
       }
 
-      // 2. Open Razorpay Checkout modal
-      await openRazorpayCheckout({
-        key: orderData.key_id,
-        order_id: orderData.order_id,
-        amount: orderData.amount,
-        currency: 'INR',
-        name: 'MAANMITRA Wallet Top-Up',
-        description: `Add ₹${activeAmount} to your session wallet for Chat, Audio & Video Calls`,
-        prefill: {
-          name: orderData.user_name || user?.full_name || '',
-          email: orderData.user_email || user?.email || '',
-          contact: orderData.user_phone || user?.phone || ''
-        },
-        themeColor: '#4A154B',
-        onSuccess: async (rzpResponse) => {
-          try {
-            // 3. Verify signature on backend and credit wallet
-            const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                razorpay_order_id: rzpResponse.razorpay_order_id,
-                razorpay_payment_id: rzpResponse.razorpay_payment_id,
-                razorpay_signature: rzpResponse.razorpay_signature,
-                amount_inr: activeAmount
-              })
-            });
-
-            if (!verifyRes.ok) {
-              const err = await verifyRes.json();
-              throw new Error(err.detail || 'Payment verification failed.');
-            }
-
-            const verifyData = await verifyRes.json();
-            setBalance(verifyData.wallet_balance_inr);
-            setStatusMsg({
-              type: 'success',
-              text: `₹${activeAmount} successfully added to your wallet! New balance: ₹${verifyData.wallet_balance_inr}`
-            });
-            setCustomAmount('');
-            await fetchWalletData();
-          } catch (err) {
-            setStatusMsg({ type: 'error', text: err.message || 'Verification failed.' });
-          } finally {
-            setProcessing(false);
-          }
-        },
-        onDismiss: () => {
-          setProcessing(false);
-          setStatusMsg({ type: 'info', text: 'Top-up was cancelled.' });
-        },
-        onError: (err) => {
-          setProcessing(false);
-          setStatusMsg({ type: 'error', text: err.description || 'Payment could not be completed.' });
-        }
-      });
+      throw new Error(orderData.detail || 'Could not obtain Cashfree payment session. Please check server configuration.');
     } catch (err) {
       setProcessing(false);
       setStatusMsg({ type: 'error', text: err.message || 'Something went wrong.' });
@@ -627,14 +568,14 @@ export default function UserWalletPage() {
               <CreditCard size={20} />
               {processing
                 ? 'Opening Payment...'
-                : `Top-Up ₹${activeAmount || 0} via Razorpay`}
+                : `Top-Up ₹${activeAmount || 0} via Cashfree`}
             </button>
           </div>
         </div>
 
         <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#8E738A' }}>
           <ShieldCheck size={16} color="#22C55E" />
-          <span>Secured by Razorpay. 100% RBI-compliant payment gateway. Supports UPI QR, PhonePe, GPay, Paytm, and all major Indian cards.</span>
+          <span>Secured by Cashfree Payment Gateway. 100% RBI-compliant payment gateway. Supports UPI QR, PhonePe, GPay, Paytm, and all major Indian cards.</span>
         </div>
       </div>
 

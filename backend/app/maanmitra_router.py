@@ -535,7 +535,7 @@ def create_registration_order(
                 customer_email=user.email,
                 customer_phone=getattr(user, "phone", "") or "9876543210",
                 order_note="Maanmitra Partner Registration Fee",
-                return_url="https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding"
+                return_url="https://www.maanmitra.com/partner/onboarding"
             )
             return {
                 "id": cf_order["order_id"],
@@ -552,7 +552,9 @@ def create_registration_order(
                 "is_mock": cf_order.get("is_mock", False)
             }
         except Exception as cfe:
-            logger.warning(f"Cashfree registration order failed, falling back to Razorpay if available: {cfe}")
+            logger.error(f"Cashfree registration order failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Cashfree order creation error: {str(cfe)}. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY in server environment.")
 
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
@@ -751,7 +753,7 @@ def create_activation_order(
                 customer_email=user.email,
                 customer_phone=getattr(user, "phone", "") or "9876543210",
                 order_note="Maanmitra Partner Profile Activation Fee",
-                return_url="https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding"
+                return_url="https://www.maanmitra.com/partner/onboarding"
             )
             return {
                 "id": cf_order["order_id"],
@@ -768,7 +770,9 @@ def create_activation_order(
                 "is_mock": cf_order.get("is_mock", False)
             }
         except Exception as cfe:
-            logger.warning(f"Cashfree activation order failed, falling back to Razorpay if available: {cfe}")
+            logger.error(f"Cashfree activation order failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Cashfree order creation error: {str(cfe)}. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY in server environment.")
 
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
@@ -2663,9 +2667,48 @@ def get_user_subscription_status(user: User = Depends(get_current_user), db: Ses
 
 @router.post("/user/subscription/create-order")
 def create_user_subscription_order(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Create a Razorpay order for ₹499 user subscription."""
+    """Create order for ₹499 user subscription via Cashfree."""
     if getattr(user, "subscription_paid", False):
         return {"already_paid": True, "message": "Subscription already active."}
+
+    order_ref = f"usub_{user.id}_{uuid.uuid4().hex[:8]}"
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=order_ref,
+                amount_inr=USER_SUBSCRIPTION_FEE_INR,
+                customer_id=str(user.id),
+                customer_name=user.full_name or "Maanmitra Member",
+                customer_email=user.email,
+                customer_phone=getattr(user, "phone", "") or "9876543210",
+                order_note="Maanmitra Monthly Membership Subscription",
+                return_url="https://www.maanmitra.com/user/subscription"
+            )
+            sub = UserSubscription(
+                user_id=user.id,
+                amount_inr=USER_SUBSCRIPTION_FEE_INR,
+                razorpay_order_id=cf_order["order_id"],
+                status="pending"
+            )
+            db.add(sub)
+            db.commit()
+            return {
+                "id": cf_order["order_id"],
+                "order_id": cf_order["order_id"],
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "amount": USER_SUBSCRIPTION_FEE_INR * 100,
+                "amount_inr": USER_SUBSCRIPTION_FEE_INR,
+                "currency": "INR",
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "is_mock": cf_order.get("is_mock", False)
+            }
+        except Exception as cfe:
+            logger.error(f"Cashfree subscription order failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Cashfree subscription order creation error: {str(cfe)}")
 
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
@@ -2680,7 +2723,7 @@ def create_user_subscription_order(user: User = Depends(get_current_user), db: S
         rzp_data = {
             "amount": USER_SUBSCRIPTION_FEE_INR * 100,
             "currency": "INR",
-            "receipt": f"usub_{user.id}_{uuid.uuid4().hex[:8]}",
+            "receipt": order_ref,
             "notes": {"user_id": str(user.id), "type": "user_subscription"}
         }
         res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
@@ -2704,28 +2747,39 @@ def create_user_subscription_order(user: User = Depends(get_current_user), db: S
             }
         else:
             logger.error(f"Razorpay subscription order failed: {res.text}")
-            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay subscription order: {res.text}")
+            raise HTTPException(status_code=502, detail=f"Failed to create subscription order: {res.text}")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"[Razorpay] Error creating user subscription order: {e}")
+        logger.error(f"Error creating user subscription order: {e}")
         raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 @router.post("/user/subscription/verify-payment")
 def verify_user_subscription_payment(payload: dict = Body(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Verify Razorpay payment and activate portal subscription."""
+    """Verify payment and activate portal subscription."""
     if getattr(user, "subscription_paid", False):
         return {"success": True, "already_paid": True, "message": "Subscription already active."}
 
     is_mock = payload.get("is_mock", False)
+    gateway = payload.get("gateway", "").lower()
+    order_id = payload.get("order_id", payload.get("razorpay_order_id", ""))
     razorpay_payment_id = payload.get("razorpay_payment_id", "")
-    razorpay_order_id = payload.get("razorpay_order_id", "")
+    razorpay_order_id = payload.get("razorpay_order_id", order_id)
     razorpay_signature = payload.get("razorpay_signature", "")
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    # 1. Cashfree verification
+    if gateway == "cashfree" or (order_id and not razorpay_signature):
+        from app.cashfree_service import CashfreeGatewayService
+        cf_status = CashfreeGatewayService.get_order_status(order_id)
+        if cf_status.get("order_status") == "PAID" or cf_status.get("is_mock"):
+            payment_verified = True
+            razorpay_payment_id = cf_status.get("cf_order_id") or "cashfree_paid"
+
+    # 2. Razorpay verification
+    if not payment_verified and razorpay_payment_id and razorpay_order_id and razorpay_signature:
+        RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -2736,10 +2790,8 @@ def verify_user_subscription_payment(payload: dict = Body(...), user: User = Dep
             payment_verified = hmac.compare_digest(expected_sig, razorpay_signature)
         except Exception:
             payment_verified = False
-    elif is_mock:
+    elif is_mock and not payment_verified:
         payment_verified = True
-    else:
-        raise HTTPException(status_code=400, detail="Payment verification data is incomplete.")
 
     if not payment_verified:
         raise HTTPException(status_code=400, detail="Payment signature verification failed.")
@@ -2853,7 +2905,9 @@ def create_wallet_topup_order(payload: UserWalletTopupOrderIn, user: User = Depe
                 "user_phone": getattr(user, "phone", "") or ""
             }
         except Exception as cfe:
-            logger.warning(f"Cashfree wallet topup order creation failed: {cfe}")
+            logger.error(f"Cashfree wallet topup order creation failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Cashfree wallet top-up error: {str(cfe)}")
 
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
@@ -3431,7 +3485,9 @@ def create_payment_order(
             payment_session_id = cf_order.get("payment_session_id")
             gateway = "cashfree"
         except Exception as cfe:
-            logger.warning(f"Cashfree booking order creation failed: {cfe}")
+            logger.error(f"Cashfree booking order creation failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Cashfree booking payment order error: {str(cfe)}")
 
     # Razorpay fallback / credentials
     razorpay_key = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")

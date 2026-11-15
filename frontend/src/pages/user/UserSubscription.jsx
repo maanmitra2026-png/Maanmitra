@@ -8,19 +8,7 @@ import PublicNavbar from '../../components/layout/PublicNavbar';
 import PublicFooter from '../../components/layout/PublicFooter';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE } from '../../apiConfig';
-
-const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
-
-function loadRazorpay() {
-  return new Promise((resolve) => {
-    if (window.Razorpay) { resolve(true); return; }
-    const s = document.createElement('script');
-    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    s.onload = () => resolve(true);
-    s.onerror = () => resolve(false);
-    document.body.appendChild(s);
-  });
-}
+import { openCashfreeCheckout } from '../../utils/cashfree';
 
 const FEATURES = [
   { icon: User, title: 'Profile Creation', desc: 'Create your relationship profile with photos and personal details', color: '#E91E63' },
@@ -75,64 +63,32 @@ export default function UserSubscriptionPage() {
 
       const orderId = order.order_id || order.id;
 
-      if (order.is_mock || !RAZORPAY_KEY) {
+      if (order.gateway === 'cashfree' || order.payment_session_id) {
+        await openCashfreeCheckout({
+          paymentSessionId: order.payment_session_id,
+          mode: order.environment || 'production',
+          redirectTarget: '_modal',
+        });
         await verifyPayment({
-          razorpay_order_id: orderId,
-          razorpay_payment_id: 'mock_pay_' + Date.now(),
-          razorpay_signature: 'mock_sig',
+          order_id: orderId,
+          gateway: 'cashfree',
+        });
+        return;
+      }
+
+      if (order.is_mock) {
+        await verifyPayment({
+          order_id: orderId,
+          gateway: 'mock',
           is_mock: true
         });
         return;
       }
 
-      const sdkLoaded = await loadRazorpay();
-      if (!sdkLoaded) { setError('Payment gateway failed to load. Please try again.'); setLoading(false); return; }
-
-      const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY,
-        amount: order.amount,
-        currency: order.currency || 'INR',
-        name: 'MAANMITRA',
-        description: 'Membership -- Full Portal Access',
-        order_id: orderId,
-        image: '/maanmitra-original-logo-transparent.png',
-        handler: async (response) => {
-          await verifyPayment({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature
-          });
-        },
-        prefill: { email: user?.email || '', contact: user?.phone || '' },
-        theme: { color: '#4A154B' },
-        config: {
-          display: {
-            blocks: {
-              upi_block: {
-                name: 'Pay using UPI / QR / UPI ID',
-                instruments: [
-                  {
-                    method: 'upi',
-                    flows: ['collect', 'qr', 'intent']
-                  }
-                ]
-              }
-            },
-            sequence: ['block.upi_block'],
-            preferences: {
-              show_default_blocks: true
-            }
-          }
-        },
-        modal: { ondismiss: () => setLoading(false) }
-      });
-      rzp.on('payment.failed', function (resp) {
-        setLoading(false);
-        setError(resp.error?.description || 'Payment was unsuccessful or declined.');
-      });
-      rzp.open();
+      throw new Error(order.detail || 'Could not obtain Cashfree payment session.');
     } catch (err) {
-      setError(err.message || 'Payment initiation failed. Please try again.');
+      console.error('Subscription payment error:', err);
+      setError(err?.message || 'Payment initiation failed. Please try again.');
       setLoading(false);
     }
   };
@@ -234,7 +190,7 @@ export default function UserSubscriptionPage() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px', fontSize: '0.78rem', color: '#9B7EA8' }}>
                 <Lock size={12} />
-                Secured by Razorpay. 100% safe payment.
+                Secured by Cashfree Payment Gateway. 100% safe payment.
               </div>
 
               <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '0.78rem', color: '#B4A0B8' }}>
