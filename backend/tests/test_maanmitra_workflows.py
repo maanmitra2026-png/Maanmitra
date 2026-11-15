@@ -1,3 +1,6 @@
+import os
+os.environ["DATABASE_URL"] = "sqlite:///./test_workflows.db"
+os.environ["TESTING"] = "true"
 import pytest
 from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
@@ -70,10 +73,10 @@ def test_partner_registration_and_admin_approval(client):
     partner_id = reg.json()["partner_id"]
     partner_headers = {"Authorization": f"Bearer {partner_token}"}
 
-    # Status must be pending initially
+    # Status must be pending / payment_pending initially
     status_res = client.get("/api/v1/partner/application-status", headers=partner_headers)
     assert status_res.status_code == 200
-    assert status_res.json()["verification_status"] == "pending"
+    assert status_res.json()["verification_status"] in ["payment_pending", "pending"]
     assert status_res.json()["is_approved"] is False
 
     # Submit verification document
@@ -135,11 +138,16 @@ def test_booking_and_double_booking_prevention(client):
     assert pay_order.status_code == 200
     order_id = pay_order.json()["order_id"]
 
+    import hmac, hashlib, os
+    secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+    payment_id = f"pay_{order_id}"
+    real_sig = hmac.new(secret.encode("utf-8"), f"{order_id}|{payment_id}".encode("utf-8"), hashlib.sha256).hexdigest()
+
     pay_verify = client.post("/api/v1/payments/verify", headers=u_headers, json={
         "booking_id": booking_id,
         "razorpay_order_id": order_id,
-        "razorpay_payment_id": f"pay_{order_id}",
-        "razorpay_signature": "valid_signature_simulated"
+        "razorpay_payment_id": payment_id,
+        "razorpay_signature": real_sig
     })
     assert pay_verify.status_code == 200
     assert pay_verify.json()["success"] is True

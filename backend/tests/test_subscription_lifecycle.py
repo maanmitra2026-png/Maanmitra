@@ -1,4 +1,8 @@
+import os
+os.environ["TESTING"] = "true"
 import pytest
+import hmac
+import hashlib
 from datetime import datetime, date, timedelta
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -484,8 +488,9 @@ def test_15_valid_payment_activates_subscription_idempotently():
     )
     order_id = res_order.json()["order_id"]
 
-    # Test signature in mock mode
-    test_sig = f"sig_mock_{order_id}_pay_valid_123"
+    import hmac, hashlib
+    _, key_secret, _ = PaymentGatewayService.get_credentials()
+    test_sig = hmac.new(key_secret.encode("utf-8"), f"{order_id}|pay_valid_123".encode("utf-8"), hashlib.sha256).hexdigest()
     res_verify = client.post(
         "/api/subscriptions/verify",
         json={
@@ -608,11 +613,13 @@ def test_20_webhook_signature_and_idempotency():
     import json
     raw_bytes = json.dumps(webhook_payload).encode("utf-8")
     
-    # Send with mock webhook signature
+    # Send with valid webhook signature
+    _, _, webhook_secret = PaymentGatewayService.get_credentials()
+    wh_sig = hmac.new(webhook_secret.encode("utf-8"), raw_bytes, hashlib.sha256).hexdigest()
     res_wh = client.post(
         "/api/payments/webhook",
         content=raw_bytes,
-        headers={"Content-Type": "application/json", "X-Razorpay-Signature": "sig_webhook_mock_test"}
+        headers={"Content-Type": "application/json", "X-Razorpay-Signature": wh_sig}
     )
     assert res_wh.status_code == 200
     assert res_wh.json()["status"] in ("activated", "already_processed")
@@ -621,7 +628,7 @@ def test_20_webhook_signature_and_idempotency():
     res_repeat = client.post(
         "/api/payments/webhook",
         content=raw_bytes,
-        headers={"Content-Type": "application/json", "X-Razorpay-Signature": "sig_webhook_mock_test"}
+        headers={"Content-Type": "application/json", "X-Razorpay-Signature": wh_sig}
     )
     assert res_repeat.status_code == 200
     assert res_repeat.json()["status"] == "already_processed"
