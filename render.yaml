@@ -46,7 +46,17 @@ services:
       - key: UPLOAD_DIR
         value: "/app/uploads"
 
-      # ---- Razorpay (Live Production Credentials) ----
+      # ---- Payment Gateway ----
+      - key: PAYMENT_GATEWAY
+        value: "cashfree"
+      - key: CASHFREE_APP_ID
+        value: "15302684abff6e77cfbe09ff71f8620351"
+      - key: CASHFREE_SECRET_KEY
+        sync: false
+      - key: CASHFREE_ENV
+        value: "PRODUCTION"
+
+      # ---- Razorpay (Fallback Credentials) ----
       - key: RAZORPAY_KEY_ID
         value: "rzp_live_TwgPINXkMnFaPI"
       - key: RAZORPAY_KEY_SECRET
