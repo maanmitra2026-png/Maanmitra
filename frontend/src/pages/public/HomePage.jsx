@@ -156,8 +156,44 @@ export default function HomePage() {
         }}>
           {/* Left Hero Content */}
           <div>
+            {/* BIG PROMINENT POWERED BY DESTINATION POINT BADGE */}
             <div style={{
               display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '8px 20px',
+              borderRadius: '12px',
+              background: '#50164F',
+              color: '#FFF9F5',
+              border: '2px solid #D8B36A',
+              marginBottom: '18px',
+              boxShadow: '0 4px 16px rgba(80, 22, 79, 0.15)',
+              flexWrap: 'wrap'
+            }}>
+              <span style={{ fontSize: '0.80rem', fontWeight: 800, letterSpacing: '0.08em', color: '#D8B36A', textTransform: 'uppercase' }}>
+                OFFICIAL PLATFORM
+              </span>
+              <span style={{ color: '#D8B36A' }}>•</span>
+              <span style={{ fontSize: '1.05rem', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                POWERED BY DESTINATION POINT
+              </span>
+              <a
+                href="https://destinationpoint.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#D8B36A',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  textDecoration: 'underline',
+                  marginLeft: '4px'
+                }}
+              >
+                (destinationpoint.org)
+              </a>
+            </div>
+
+            <div style={{
               alignItems: 'center',
               gap: '8px',
               padding: '6px 16px',
@@ -170,12 +206,13 @@ export default function HomePage() {
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
               marginBottom: '20px',
-              boxShadow: '0 2px 8px rgba(80, 22, 79, 0.04)'
+              boxShadow: '0 2px 8px rgba(80, 22, 79, 0.04)',
+              display: 'inline-flex'
             }}>
               <span>MEANINGFUL CONNECTIONS</span>
-              <span style={{ color: '#D8B36A' }}>|</span>
+              <span style={{ color: '#D8B36A', margin: '0 6px' }}>|</span>
               <span>PERSONAL GROWTH</span>
-              <span style={{ color: '#D8B36A' }}>|</span>
+              <span style={{ color: '#D8B36A', margin: '0 6px' }}>|</span>
               <span>NEW OPPORTUNITIES</span>
             </div>
 
@@ -196,10 +233,24 @@ export default function HomePage() {
               color: '#665365',
               lineHeight: 1.65,
               maxWidth: '520px',
-              marginBottom: '32px'
+              marginBottom: '20px'
             }}>
               Connect with new friends, explore meaningful relationships, discover group trips and access professional guidance with MAANMITRA.
             </p>
+
+            {/* Official Destination Point Ownership Notice */}
+            <div style={{
+              padding: '12px 18px',
+              borderRadius: '12px',
+              background: '#FFF9F5',
+              border: '1.5px solid #D8B36A',
+              marginBottom: '30px',
+              fontSize: '0.90rem',
+              color: '#50164F',
+              lineHeight: 1.55
+            }}>
+              🏢 <strong>MAANMITRA is an official venture powered by DESTINATION POINT</strong> (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#50164F', fontWeight: 800, textDecoration: 'underline' }}>destinationpoint.org</a>) — combining career opportunities, human connections, and verified professional guidance.
+            </div>
 
             {/* CTAs */}
             <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '36px' }}>

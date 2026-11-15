@@ -136,6 +136,74 @@ export default function PublicFooter() {
         </div>
       </div>
 
+      {/* POWERED BY DESTINATION POINT PROMINENT BANNER */}
+      <div style={{
+        maxWidth: '1280px',
+        margin: '36px auto 0',
+        background: 'linear-gradient(135deg, rgba(216, 179, 106, 0.18), rgba(216, 179, 106, 0.06))',
+        border: '2px solid #D8B36A',
+        borderRadius: '16px',
+        padding: '24px 28px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
+        <div>
+          <div style={{
+            fontSize: '0.80rem',
+            color: '#D8B36A',
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            marginBottom: '4px'
+          }}>
+            AN OFFICIAL PLATFORM INITIATIVE
+          </div>
+          <div style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '1.6rem',
+            fontWeight: 900,
+            color: '#FFFFFF',
+            letterSpacing: '0.02em',
+            margin: '0 0 6px'
+          }}>
+            POWERED BY DESTINATION POINT
+          </div>
+          <p style={{
+            fontSize: '0.90rem',
+            color: 'rgba(255, 255, 255, 0.88)',
+            margin: 0,
+            maxWidth: '720px',
+            lineHeight: 1.55
+          }}>
+            MAANMITRA (https://maanmitra-frontend-pk5h.onrender.com) is an authorized digital venture operated and powered by <strong>Destination Point</strong> (official website: <a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#D8B36A', fontWeight: 700 }}>destinationpoint.org</a>). All payment processing, merchant compliance, and platform services are backed by Destination Point.
+          </p>
+        </div>
+        <a
+          href="https://destinationpoint.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            padding: '13px 26px',
+            borderRadius: '9999px',
+            background: '#D8B36A',
+            color: '#50164F',
+            fontWeight: 800,
+            fontSize: '0.95rem',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 15px rgba(216, 179, 106, 0.35)',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Visit destinationpoint.org &rarr;
+        </a>
+      </div>
+
       {/* BOTTOM: COPYRIGHT & SOCIALS */}
       <div style={{
         maxWidth: '1280px',
@@ -149,7 +217,7 @@ export default function PublicFooter() {
         color: 'rgba(255, 255, 255, 0.65)'
       }}>
         <div>
-          © {new Date().getFullYear()} MAANMITRA. All rights reserved. A Listening Friend, Always With You.
+          © {new Date().getFullYear()} MAANMITRA. All rights reserved. <strong>POWERED BY DESTINATION POINT</strong> (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#D8B36A' }}>destinationpoint.org</a>).
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           {[

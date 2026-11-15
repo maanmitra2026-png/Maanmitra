@@ -75,7 +75,6 @@ export default function PublicNavbar() {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        padding: '10px 16px',
         width: '100%',
         boxSizing: 'border-box',
         transition: 'all 0.25s ease',
@@ -84,41 +83,102 @@ export default function PublicNavbar() {
       }}
       role="banner"
     >
-      {/* Floating Pill Container */}
+      {/* Top Powered by Destination Point Announcement Bar */}
       <div
         style={{
-          maxWidth: '1280px',
-          width: '95%',
-          margin: '0 auto',
-          background: '#FFFFFF',
-          borderRadius: '9999px',
-          border: '1.5px solid #F0E3D7',
-          boxShadow: scrolled
-            ? '0 10px 30px rgba(80, 22, 79, 0.10)'
-            : '0 4px 20px rgba(80, 22, 79, 0.05)',
-          padding: '6px 16px 6px 20px',
-          height: '64px',
+          background: 'linear-gradient(90deg, #50164F 0%, #3D0F3C 50%, #50164F 100%)',
+          color: '#FFF9F5',
+          textAlign: 'center',
+          padding: '6px 16px',
+          fontSize: '0.84rem',
+          fontWeight: 700,
+          letterSpacing: '0.04em',
+          borderBottom: '2px solid #D8B36A',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
-          position: 'relative',
-          boxSizing: 'border-box',
+          justifyContent: 'center',
+          gap: '8px',
+          flexWrap: 'wrap'
         }}
       >
-        {/* 1. Brand Logo */}
-        <Link
-          to="/"
+        <span style={{ color: '#D8B36A', fontWeight: 800 }}>⭐ AN OFFICIAL INITIATIVE</span>
+        <span>•</span>
+        <span style={{ fontSize: '0.88rem', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          POWERED BY DESTINATION POINT
+        </span>
+        <a
+          href="https://destinationpoint.org/"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
+            color: '#D8B36A',
+            fontWeight: 800,
+            textDecoration: 'underline',
+            fontSize: '0.82rem',
+            marginLeft: '4px'
+          }}
+        >
+          (destinationpoint.org) &rarr;
+        </a>
+      </div>
+
+      <div style={{ padding: '8px 16px' }}>
+        {/* Floating Pill Container */}
+        <div
+          style={{
+            maxWidth: '1280px',
+            width: '95%',
+            margin: '0 auto',
+            background: '#FFFFFF',
+            borderRadius: '9999px',
+            border: '1.5px solid #F0E3D7',
+            boxShadow: scrolled
+              ? '0 10px 30px rgba(80, 22, 79, 0.10)'
+              : '0 4px 20px rgba(80, 22, 79, 0.05)',
+            padding: '6px 16px 6px 20px',
+            height: '64px',
             display: 'flex',
             alignItems: 'center',
-            textDecoration: 'none',
-            flexShrink: 0
+            justifyContent: 'space-between',
+            transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
+            position: 'relative',
+            boxSizing: 'border-box',
           }}
-          aria-label="MAANMITRA Home"
         >
-          <MaanmitraOriginalLogo height={38} />
-        </Link>
+          {/* 1. Brand Logo + Powered by Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            <Link
+              to="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                flexShrink: 0
+              }}
+              aria-label="MAANMITRA Home"
+            >
+              <MaanmitraOriginalLogo height={38} />
+            </Link>
+            <div
+              className="mm-nav-desktop-only"
+              style={{
+                background: '#FFF9F5',
+                border: '1.5px solid #D8B36A',
+                borderRadius: '8px',
+                padding: '3px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                lineHeight: 1.15
+              }}
+            >
+              <span style={{ fontSize: '0.58rem', color: '#665365', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Initiative
+              </span>
+              <span style={{ fontSize: '0.74rem', color: '#50164F', fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                POWERED BY DESTINATION POINT
+              </span>
+            </div>
+          </div>
 
         {/* 2. Desktop Navigation Links */}
         <nav
@@ -590,6 +650,7 @@ export default function PublicNavbar() {
         >
           <Menu size={24} />
         </button>
+        </div>
       </div>
 
       {/* 5. Mobile Slide-in Drawer */}

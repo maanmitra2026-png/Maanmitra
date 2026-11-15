@@ -973,6 +973,9 @@ export function PartnerOnboardingPaymentPage() {
               <div>
                 <h2 style={{ margin: 0, color: '#4A154B', fontSize: '1.15rem', fontWeight: '700' }}>Step 1 -- Registration Fee</h2>
                 <p style={{ margin: '2px 0 0', color: '#756572', fontSize: '0.85rem' }}>Create your counsellor profile on MAANMITRA</p>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#D8B36A', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: '3px' }}>
+                  ⭐ POWERED BY DESTINATION POINT (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#D8B36A' }}>destinationpoint.org</a>)
+                </div>
               </div>
             </div>
 
@@ -1276,8 +1279,8 @@ export function PartnerOnboardingPaymentPage() {
           </div>
         )}
 
-        <p style={{ textAlign: 'center', fontSize: '0.78rem', color: '#9B7EA8', marginTop: '14px' }}>
-          Payments secured by Razorpay. Need help?{' '}
+        <p style={{ textAlign: 'center', fontSize: '0.80rem', color: '#665365', marginTop: '16px', lineHeight: 1.5 }}>
+          Payments securely processed by Razorpay for <strong>DESTINATION POINT</strong> (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#50164F', fontWeight: 700 }}>destinationpoint.org</a>). Need help?{' '}
           <a href="mailto:support@maanmitra.com" style={{ color: '#4A154B' }}>Contact Support</a>
         </p>
       </main>

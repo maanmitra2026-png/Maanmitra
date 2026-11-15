@@ -704,8 +704,8 @@ export function TermsPage() {
         <p style={{ color: 'var(--mm-secondary-text)', marginBottom: '24px' }}>Last updated: October 2026</p>
 
         <div className="mm-content-card" style={{ lineHeight: '1.7' }}>
-          <h3>1. Platform Scope</h3>
-          <p>MAANMITRA is an online service facilitating conversational companionship and active listening. It is explicitly not a dating service, adult entertainment platform, or healthcare consultation provider.</p>
+          <h3>1. Platform Scope &amp; Legal Ownership</h3>
+          <p>MAANMITRA (https://maanmitra-frontend-pk5h.onrender.com) is an authorized digital platform and venture <strong>POWERED AND OPERATED BY DESTINATION POINT</strong> (official corporate portal: <a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mm-primary)', fontWeight: 700 }}>destinationpoint.org</a>). All payment transactions, Razorpay merchant collections, career initiatives, mentorship programmes, and platform compliance are directly operated under Destination Point.</p>
 
           <h3 style={{ marginTop: '20px' }}>2. Code of Conduct</h3>
           <p>All members and partners agree to treat each other with dignity, mutual courtesy, and respect. Inappropriate, offensive, sexually explicit, abusive, or threatening remarks result in immediate termination of sessions and permanent account suspension without refund.</p>
