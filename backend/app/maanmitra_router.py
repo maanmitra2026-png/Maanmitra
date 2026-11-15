@@ -523,6 +523,37 @@ def create_registration_order(
     amount_paise = REGISTRATION_FEE_INR * 100
     order_ref = f"REG-{uuid.uuid4().hex[:10].upper()}"
 
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=order_ref,
+                amount_inr=REGISTRATION_FEE_INR,
+                customer_id=str(user.id),
+                customer_name=user.full_name or "Maanmitra Partner",
+                customer_email=user.email,
+                customer_phone=getattr(user, "phone", "") or "9876543210",
+                order_note="Maanmitra Partner Registration Fee",
+                return_url="https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding"
+            )
+            return {
+                "id": cf_order["order_id"],
+                "order_id": cf_order["order_id"],
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "amount": amount_paise,
+                "amount_inr": REGISTRATION_FEE_INR,
+                "currency": "INR",
+                "receipt": order_ref,
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "purpose": "registration",
+                "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
+                "is_mock": cf_order.get("is_mock", False)
+            }
+        except Exception as cfe:
+            logger.warning(f"Cashfree registration order failed, falling back to Razorpay if available: {cfe}")
+
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
@@ -607,14 +638,23 @@ def verify_registration_payment(
         return {"success": True, "message": "Already registered", "partner_status": profile.verification_status}
 
     razorpay_payment_id = payload.get("razorpay_payment_id", "")
-    razorpay_order_id = payload.get("razorpay_order_id", "")
+    razorpay_order_id = payload.get("razorpay_order_id", payload.get("order_id", ""))
     razorpay_signature = payload.get("razorpay_signature", "")
+    gateway = payload.get("gateway", "").lower()
     is_mock = payload.get("is_mock", False)
 
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    # 1. Cashfree verification
+    if gateway == "cashfree" or (razorpay_order_id and not razorpay_signature):
+        from app.cashfree_service import CashfreeGatewayService
+        cf_status = CashfreeGatewayService.get_order_status(razorpay_order_id)
+        if cf_status.get("is_paid") or cf_status.get("is_mock") or is_mock:
+            payment_verified = True
+
+    # 2. Razorpay verification
+    if not payment_verified and razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -698,6 +738,37 @@ def create_activation_order(
 
     amount_paise = ACTIVATION_FEE_INR * 100
     order_ref = f"ACT-{uuid.uuid4().hex[:10].upper()}"
+
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=order_ref,
+                amount_inr=ACTIVATION_FEE_INR,
+                customer_id=str(user.id),
+                customer_name=user.full_name or "Maanmitra Partner",
+                customer_email=user.email,
+                customer_phone=getattr(user, "phone", "") or "9876543210",
+                order_note="Maanmitra Partner Profile Activation Fee",
+                return_url="https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding"
+            )
+            return {
+                "id": cf_order["order_id"],
+                "order_id": cf_order["order_id"],
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "amount": amount_paise,
+                "amount_inr": ACTIVATION_FEE_INR,
+                "currency": "INR",
+                "receipt": order_ref,
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "purpose": "activation",
+                "description": "Maanmitra Training & Profile Activation Fee (₹499)",
+                "is_mock": cf_order.get("is_mock", False)
+            }
+        except Exception as cfe:
+            logger.warning(f"Cashfree activation order failed, falling back to Razorpay if available: {cfe}")
 
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
@@ -789,14 +860,23 @@ def verify_activation_payment(
         return {"success": True, "message": "Already activated", "partner_status": profile.verification_status}
 
     razorpay_payment_id = payload.get("razorpay_payment_id", "")
-    razorpay_order_id = payload.get("razorpay_order_id", "")
+    razorpay_order_id = payload.get("razorpay_order_id", payload.get("order_id", ""))
     razorpay_signature = payload.get("razorpay_signature", "")
+    gateway = payload.get("gateway", "").lower()
     is_mock = payload.get("is_mock", False)
 
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    # 1. Cashfree verification
+    if gateway == "cashfree" or (razorpay_order_id and not razorpay_signature):
+        from app.cashfree_service import CashfreeGatewayService
+        cf_status = CashfreeGatewayService.get_order_status(razorpay_order_id)
+        if cf_status.get("is_paid") or cf_status.get("is_mock") or is_mock:
+            payment_verified = True
+
+    # 2. Razorpay verification
+    if not payment_verified and razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -2745,6 +2825,36 @@ def create_wallet_topup_order(payload: UserWalletTopupOrderIn, user: User = Depe
         raise HTTPException(status_code=400, detail="Minimum top-up amount is ₹50.")
 
     amount_paise = amount_inr * 100
+
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=f"wt_{user.id}_{uuid.uuid4().hex[:8]}",
+                amount_inr=amount_inr,
+                customer_id=str(user.id),
+                customer_name=user.full_name or "Maanmitra Member",
+                customer_email=user.email,
+                customer_phone=getattr(user, "phone", "") or "9876543210",
+                order_note="Wallet Top-Up",
+                return_url="https://maanmitra-frontend-pk5h.onrender.com/user/wallet"
+            )
+            return {
+                "order_id": cf_order["order_id"],
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "amount": amount_paise,
+                "amount_inr": amount_inr,
+                "currency": "INR",
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "user_name": user.full_name or "Maanmitra Member",
+                "user_email": user.email,
+                "user_phone": getattr(user, "phone", "") or ""
+            }
+        except Exception as cfe:
+            logger.warning(f"Cashfree wallet topup order creation failed: {cfe}")
+
     RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
@@ -2804,8 +2914,11 @@ def verify_wallet_topup(payload: UserWalletVerifyTopupIn, user: User = Depends(g
     RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
     payment_verified = False
 
-    if razorpay_order_id.startswith("order_mock_"):
-        payment_verified = True
+    if razorpay_order_id.startswith("order_mock_") or getattr(payload, "gateway", "") == "cashfree" or not razorpay_signature:
+        from app.cashfree_service import CashfreeGatewayService
+        cf_res = CashfreeGatewayService.get_order_status(razorpay_order_id)
+        if cf_res.get("is_paid") or cf_res.get("is_mock"):
+            payment_verified = True
     elif RAZORPAY_SECRET and razorpay_payment_id and razorpay_order_id and razorpay_signature:
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
@@ -3297,12 +3410,34 @@ def create_payment_order(
     amount_inr = booking.total_amount
     amount_paise = int(amount_inr * 100)
 
-    # Razorpay credentials
+    payment_session_id = None
+    gateway = "razorpay"
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+
+    order_id = None
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=f"bk_{booking.id}_{uuid.uuid4().hex[:8]}",
+                amount_inr=amount_inr,
+                customer_id=str(user.id),
+                customer_name=user.full_name or "Maanmitra Member",
+                customer_email=user.email,
+                customer_phone=getattr(user, "phone", "") or "9876543210",
+                order_note=f"Booking {booking.booking_code} with {booking.partner.display_name if booking.partner else 'Companion'}"
+            )
+            order_id = cf_order["order_id"]
+            payment_session_id = cf_order.get("payment_session_id")
+            gateway = "cashfree"
+        except Exception as cfe:
+            logger.warning(f"Cashfree booking order creation failed: {cfe}")
+
+    # Razorpay fallback / credentials
     razorpay_key = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
     razorpay_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    order_id = None
-    if razorpay_key and razorpay_secret:
+    if not order_id and razorpay_key and razorpay_secret:
         try:
             auth_str = f"{razorpay_key}:{razorpay_secret}"
             b64_auth = base64.b64encode(auth_str.encode()).decode()
@@ -3362,6 +3497,8 @@ def create_payment_order(
 
     return {
         "order_id": order_id,
+        "payment_session_id": payment_session_id,
+        "gateway": gateway,
         "amount": amount_paise,
         "amount_inr": amount_inr,
         "currency": "INR",
@@ -3404,13 +3541,17 @@ def verify_payment(
             logger.error(f"Signature calculation error: {e}")
             signature_valid = False
 
-    # Check for test mode signatures
+    # Check for test mode or Cashfree signatures
     if not signature_valid and (
         payload.razorpay_order_id.startswith("order_mock_") or 
         payload.razorpay_signature.startswith("sig_mock_") or
-        payload.razorpay_signature == "test_signature_verified"
+        payload.razorpay_signature in ("test_signature_verified", "cashfree_verified") or
+        not payload.razorpay_signature
     ):
-        signature_valid = True
+        from app.cashfree_service import CashfreeGatewayService
+        cf_res = CashfreeGatewayService.get_order_status(payload.razorpay_order_id)
+        if cf_res.get("is_paid") or cf_res.get("is_mock"):
+            signature_valid = True
 
     if not signature_valid:
         payment.payment_status = "failed"

@@ -780,11 +780,52 @@ export function PartnerOnboardingPaymentPage() {
       }
       const order = await orderRes.json();
 
+      const rawOrderId = order.order_id || order.id || '';
+
+      // --- Cashfree Payment Gateway Checkout ---
+      if (order.gateway === 'cashfree' || order.payment_session_id) {
+        try {
+          const { openCashfreeCheckout } = await import('../../utils/cashfree');
+          await openCashfreeCheckout({
+            paymentSessionId: order.payment_session_id,
+            mode: order.environment || 'production',
+            redirectTarget: '_modal',
+          });
+
+          const verRes = await fetch(verifyUrl, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: rawOrderId,
+              gateway: 'cashfree',
+            })
+          });
+
+          if (verRes.ok) {
+            setSuccessMsg(`${amountLabel} confirmed via Cashfree!`);
+            await fetchStatus();
+            if (verifyUrl.includes('verify-registration-payment')) {
+              setTimeout(() => {
+                navigate('/partner/dashboard', { replace: true });
+              }, 800);
+            }
+          } else {
+            const err = await verRes.json().catch(() => ({}));
+            setErrorMsg(err.detail || 'Payment verification failed. Please contact support.');
+          }
+        } catch (cfe) {
+          console.error('Cashfree checkout error:', cfe);
+          setErrorMsg(cfe?.message || 'Payment window closed. Please retry when ready.');
+        } finally {
+          setPayLoading(false);
+        }
+        return;
+      }
+
       if (order.payment_link_url) {
         setHostedPayUrl(order.payment_link_url);
       }
 
-      const rawOrderId = order.order_id || order.id || '';
       const isRealRazorpayOrder = rawOrderId && String(rawOrderId).startsWith('order_') && !String(rawOrderId).startsWith('order_mock_');
 
       const rawKey = order.razorpay_key || order.key_id || RAZORPAY_KEY;

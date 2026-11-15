@@ -126,6 +126,13 @@ class PaymentGatewayService:
         if hmac.compare_digest(expected_signature, signature):
             return True
 
+        # Cashfree verification
+        if signature.startswith("cf_") or signature == "cashfree_verified":
+            from app.cashfree_service import CashfreeGatewayService
+            cf_status = CashfreeGatewayService.get_order_status(order_id)
+            if cf_status.get("is_paid") or cf_status.get("is_mock"):
+                return True
+
         # In mock or automated test mode, allow test signature format
         if (not cls.is_live_configured() or os.getenv("TESTING", "").lower() == "true") and signature.startswith("sig_mock_"):
             return True

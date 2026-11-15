@@ -66,6 +66,35 @@ export default function RazorpayCheckoutButton({
       const orderData = await orderRes.json();
       const orderId = orderData.order_id || orderData.id;
 
+      // Cashfree Gateway Flow
+      if (orderData.gateway === 'cashfree' || orderData.payment_session_id) {
+        const { openCashfreeCheckout } = await import('../utils/cashfree');
+        await openCashfreeCheckout({
+          paymentSessionId: orderData.payment_session_id,
+          mode: orderData.environment || 'production',
+          redirectTarget: '_modal'
+        });
+
+        const verifyRes = await fetch(verifyPaymentUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            order_id: orderId,
+            gateway: 'cashfree'
+          })
+        });
+
+        if (!verifyRes.ok) {
+          const verifyErr = await verifyRes.json().catch(() => ({}));
+          throw new Error(verifyErr.detail || 'Payment verification failed.');
+        }
+
+        const verifyData = await verifyRes.json();
+        setLoading(false);
+        if (onSuccess) onSuccess(verifyData);
+        return;
+      }
+
       // Step 2: Open Razorpay Standard Checkout Modal
       await openRazorpayCheckout({
         order_id: orderId,

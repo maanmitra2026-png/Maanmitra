@@ -124,6 +124,47 @@ export default function UserWalletPage() {
 
       const orderData = await orderRes.json();
 
+      // Cashfree Checkout Flow
+      if (orderData.gateway === 'cashfree' || orderData.payment_session_id) {
+        const { openCashfreeCheckout } = await import('../../utils/cashfree');
+        await openCashfreeCheckout({
+          paymentSessionId: orderData.payment_session_id,
+          mode: orderData.environment || 'production',
+          redirectTarget: '_modal'
+        });
+
+        const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            razorpay_order_id: orderData.order_id,
+            razorpay_payment_id: 'cf_paid',
+            razorpay_signature: 'cashfree_verified',
+            amount_inr: activeAmount,
+            gateway: 'cashfree'
+          })
+        });
+
+        if (!verifyRes.ok) {
+          const err = await verifyRes.json();
+          throw new Error(err.detail || 'Payment verification failed.');
+        }
+
+        const verifyData = await verifyRes.json();
+        setBalance(verifyData.wallet_balance_inr);
+        setStatusMsg({
+          type: 'success',
+          text: `₹${activeAmount} successfully added to your wallet! New balance: ₹${verifyData.wallet_balance_inr}`
+        });
+        setCustomAmount('');
+        await fetchWalletData();
+        setProcessing(false);
+        return;
+      }
+
       // 2. Open Razorpay Checkout modal
       await openRazorpayCheckout({
         key: orderData.key_id,

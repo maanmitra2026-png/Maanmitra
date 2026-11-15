@@ -31,6 +31,31 @@ export default function CheckoutModal({
       setSubmitting(true);
       setErrorMsg(null);
 
+      // Cashfree Flow
+      if (checkoutData.gateway === 'cashfree' || checkoutData.payment_session_id) {
+        const { openCashfreeCheckout } = await import('./utils/cashfree');
+        await openCashfreeCheckout({
+          paymentSessionId: checkoutData.payment_session_id,
+          mode: checkoutData.environment || 'production',
+          redirectTarget: '_modal'
+        });
+
+        const res = await api('/subscriptions/verify', {
+          method: 'POST',
+          body: {
+            razorpay_order_id: order_id,
+            razorpay_payment_id: 'cf_paid',
+            razorpay_signature: 'cashfree_verified'
+          }
+        });
+        notify(res.message || 'Payment successfully verified! Your subscription is now active.');
+        if (onPaymentSuccess) {
+          onPaymentSuccess(res.subscription);
+        }
+        onClose();
+        return;
+      }
+
       await openRazorpayCheckout({
         key: checkoutData.key_id || RAZORPAY_KEY_ID,
         order_id,
