@@ -97,7 +97,7 @@ export default function UserSubscriptionPage() {
     <div style={{ background: 'linear-gradient(135deg, #FFF1F5 0%, #F5E6FF 50%, #FFF1F5 100%)', minHeight: '100vh' }}>
       <PublicNavbar />
 
-      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 20px 80px' }}>
+      <main className="mm-subscription-main" style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 20px 80px' }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -105,7 +105,7 @@ export default function UserSubscriptionPage() {
             <Heart size={16} color="#fff" fill="#fff" />
             <span style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.5px' }}>EXCLUSIVE MEMBERSHIP</span>
           </div>
-          <h1 style={{ fontSize: '2.4rem', fontWeight: '800', color: '#4A154B', margin: '0 0 12px', lineHeight: 1.2 }}>
+          <h1 className="mm-subscription-title" style={{ fontSize: '2.4rem', fontWeight: '800', color: '#4A154B', margin: '0 0 12px', lineHeight: 1.2 }}>
             Find Your Perfect Match
           </h1>
           <p style={{ color: '#756572', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto' }}>
@@ -113,7 +113,7 @@ export default function UserSubscriptionPage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start' }}>
+        <div className="mm-subscription-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start' }}>
 
           {/* Features Grid */}
           <div>
@@ -136,13 +136,13 @@ export default function UserSubscriptionPage() {
           </div>
 
           {/* Payment Card */}
-          <div style={{ position: 'sticky', top: '20px' }}>
-            <div style={{ background: '#fff', borderRadius: '24px', padding: '32px', boxShadow: '0 12px 48px rgba(74,21,75,0.12)', border: '1px solid #F1DCE5' }}>
+          <div className="mm-subscription-card-wrapper" style={{ position: 'sticky', top: '20px' }}>
+            <div className="mm-subscription-card" style={{ background: '#fff', borderRadius: '24px', padding: '32px', boxShadow: '0 12px 48px rgba(74,21,75,0.12)', border: '1px solid #F1DCE5' }}>
 
               {/* Price */}
-              <div style={{ background: 'linear-gradient(135deg, #4A154B, #611E63)', borderRadius: '16px', padding: '24px', textAlign: 'center', marginBottom: '24px', color: '#fff' }}>
+              <div className="mm-subscription-price-box" style={{ background: 'linear-gradient(135deg, #4A154B, #611E63)', borderRadius: '16px', padding: '24px', textAlign: 'center', marginBottom: '24px', color: '#fff' }}>
                 <div style={{ fontSize: '0.82rem', opacity: 0.8, marginBottom: '6px' }}>One-time membership fee</div>
-                <div style={{ fontSize: '3.2rem', fontWeight: '900', letterSpacing: '-2px', lineHeight: 1 }}>&#8377;499</div>
+                <div className="mm-subscription-price" style={{ fontSize: '3.2rem', fontWeight: '900', letterSpacing: '-2px', lineHeight: 1 }}>&#8377;499</div>
                 <div style={{ fontSize: '0.78rem', opacity: 0.7, marginTop: '8px' }}>Lifetime access -- No monthly charges</div>
               </div>
 

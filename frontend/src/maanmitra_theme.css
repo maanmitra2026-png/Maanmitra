@@ -6140,3 +6140,295 @@ body {
   border: 1px solid #B8E8C7;
   color: #15803D;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE MOBILE RESPONSIVE ENGINE (320px - 1024px)
+   ========================================================================== */
+
+/* Universal mobile overflow & box-sizing safeguard */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+  width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure flex/grid children can shrink below minimum content size to prevent overflow */
+.mm-grid-2 > *,
+.mm-grid-3 > *,
+.mm-grid-4 > *,
+.mm-auto-grid > *,
+.mm-subscription-grid > *,
+.mm-slots-grid > *,
+.mm-mode-selector-grid > *,
+.mm-packages-grid-4 > *,
+.mm-why-grid-4 > *,
+.mm-partner-card,
+.mm-service-card,
+.mm-auth-card,
+.mm-content-card,
+.mm-onboarding-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Prevent text clipping or overflowing */
+h1, h2, h3, h4, h5, h6, p, span, a, label, button {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Images and media elements stay within container width */
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Universal collapse of wide minmax columns on mobile */
+@media (max-width: 640px) {
+  div[style*="minmax(340px"],
+  div[style*="minmax(320px"],
+  div[style*="minmax(300px"],
+  div[style*="minmax(280px"],
+  div[style*="minmax(270px"],
+  div[style*="minmax(260px"],
+  div[style*="minmax(250px"],
+  div[style*="minmax(240px"],
+  div[style*="minmax(215px"],
+  div[style*="minmax(210px"],
+  div[style*="minmax(180px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   NAVBAR RESPONSIVENESS (<= 1140px & <= 640px)
+   ========================================================================== */
+.mm-mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 1140px) {
+  .mm-nav-desktop-only,
+  .mm-nav-links-desktop,
+  .mm-nav-actions-desktop {
+    display: none !important;
+  }
+  .mm-mobile-menu-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .mm-navbar-floating-pill {
+    height: 56px !important;
+    padding: 4px 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .mm-navbar-pill-wrapper {
+    padding: 4px 8px !important;
+  }
+  .mm-navbar-floating-pill {
+    height: 52px !important;
+    padding: 4px 10px !important;
+    border-radius: 9999px !important;
+    width: 100% !important;
+  }
+  .mm-mobile-backdrop {
+    background: rgba(0, 0, 0, 0.6) !important;
+  }
+}
+
+/* ==========================================================================
+   AUTH & PARTNER REGISTRATION PAGES RESPONSIVENESS (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .mm-auth-container,
+  .mm-partner-register-container {
+    padding: 0 12px !important;
+    margin: 20px auto 40px !important;
+    width: 100% !important;
+  }
+  .mm-auth-card,
+  .mm-partner-register-card {
+    padding: 22px 16px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 24px rgba(74, 21, 75, 0.08) !important;
+  }
+  .mm-auth-title {
+    font-size: 1.45rem !important;
+  }
+  .mm-auth-subtitle {
+    font-size: 0.84rem !important;
+  }
+  .mm-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   PARTNER ONBOARDING RESPONSIVENESS (<= 640px & <= 480px)
+   ========================================================================== */
+.mm-onboarding-step-bar {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+.mm-onboarding-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.mm-onboarding-step-label {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.mm-onboarding-step-sub {
+  font-size: 0.63rem;
+  color: #B4A0B8;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.mm-onboarding-step-line {
+  flex: 1 1 0;
+  min-width: 8px;
+  height: 2px;
+  border-radius: 2px;
+  margin: 17px 4px 0;
+}
+
+@media (max-width: 640px) {
+  .mm-onboarding-card {
+    padding: 20px 16px !important;
+    border-radius: 18px !important;
+    margin-bottom: 16px !important;
+  }
+  .mm-onboarding-container {
+    padding: 24px 12px 60px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mm-onboarding-step-dot {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.74rem !important;
+  }
+  .mm-onboarding-step-label {
+    font-size: 0.62rem !important;
+    line-height: 1.15 !important;
+  }
+  .mm-onboarding-step-sub {
+    display: none !important; /* Hide secondary micro-labels to prevent text crowding on small screens */
+  }
+  .mm-onboarding-step-line {
+    margin: 13px 2px 0 !important;
+    min-width: 4px !important;
+  }
+}
+
+/* ==========================================================================
+   USER SUBSCRIPTION PAGE RESPONSIVENESS (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .mm-subscription-main {
+    padding: 24px 14px 60px !important;
+  }
+  .mm-subscription-title {
+    font-size: 1.8rem !important;
+  }
+  .mm-subscription-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .mm-subscription-card-wrapper {
+    position: static !important;
+  }
+  .mm-subscription-card {
+    padding: 20px 16px !important;
+    border-radius: 18px !important;
+  }
+  .mm-subscription-price {
+    font-size: 2.4rem !important;
+  }
+}
+
+/* ==========================================================================
+   SESSION BOOKING & CALL SLOTS RESPONSIVENESS (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .mm-slots-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .mm-mode-selector-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+  .mm-slot-btn,
+  .mm-mode-opt-btn {
+    padding: 8px 6px !important;
+    font-size: 0.78rem !important;
+  }
+  .mm-companion-card,
+  .mm-profile-card-full {
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+  }
+  .mm-filter-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .mm-filter-bar > * {
+    width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   DASHBOARDS & STATS GRIDS (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .mm-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .mm-stat-card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+  .mm-stat-val {
+    font-size: 1.4rem !important;
+  }
+  .mm-stat-lbl {
+    font-size: 0.74rem !important;
+  }
+  .mm-dashboard-tabs {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mm-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+

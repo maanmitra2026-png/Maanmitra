@@ -219,8 +219,8 @@ export function PartnerRegisterPage() {
     <div className="mm-page-wrapper" style={{ background: '#FFF1F5', minHeight: '100vh' }}>
       <PublicNavbar />
 
-      <main className="mm-auth-container" style={{ maxWidth: '680px', margin: '40px auto', padding: '0 20px' }}>
-        <div className="mm-auth-card" style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', boxShadow: '0 12px 36px rgba(74, 21, 75, 0.08)', border: '1px solid #F1DCE5' }}>
+      <main className="mm-auth-container mm-partner-register-container" style={{ maxWidth: '680px', margin: '40px auto', padding: '0 20px' }}>
+        <div className="mm-auth-card mm-partner-register-card" style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', boxShadow: '0 12px 36px rgba(74, 21, 75, 0.08)', border: '1px solid #F1DCE5' }}>
           <div className="mm-auth-header" style={{ textAlign: 'center', marginBottom: '32px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
               <img
@@ -855,7 +855,7 @@ export function PartnerOnboardingPaymentPage() {
   return (
     <div className="mm-page-wrapper" style={{ background: '#FFF1F5', minHeight: '100vh' }}>
       <PublicNavbar />
-      <main style={{ maxWidth: '640px', margin: '0 auto', padding: '40px 20px 80px' }}>
+      <main className="mm-onboarding-container" style={{ maxWidth: '640px', margin: '0 auto', padding: '40px 20px 80px' }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
@@ -865,20 +865,20 @@ export function PartnerOnboardingPaymentPage() {
         </div>
 
         {/* Step Bar */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '28px', gap: '0' }}>
+        <div className="mm-onboarding-step-bar" style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '28px', gap: '0', width: '100%' }}>
           {steps.map((st, i) => (
             <React.Fragment key={i}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: i < steps.length - 1 ? 1 : 'none', minWidth: '64px' }}>
-                <div style={stepDot(i)}>
+              <div className="mm-onboarding-step-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                <div className="mm-onboarding-step-dot" style={stepDot(i)}>
                   {st.done ? <CheckCircle2 size={17} /> : i + 1}
                 </div>
-                <div style={{ marginTop: '6px', fontSize: '0.7rem', fontWeight: '600', color: st.done ? '#22A447' : i === currentStep ? '#4A154B' : '#9B7EA8', textAlign: 'center', lineHeight: 1.3 }}>
+                <div className="mm-onboarding-step-label" style={{ marginTop: '6px', fontSize: '0.72rem', fontWeight: '700', color: st.done ? '#22A447' : i === currentStep ? '#4A154B' : '#9B7EA8', textAlign: 'center', lineHeight: 1.25 }}>
                   {st.label}
                 </div>
-                <div style={{ fontSize: '0.63rem', color: '#B4A0B8', textAlign: 'center' }}>{st.sub}</div>
+                <div className="mm-onboarding-step-sub" style={{ fontSize: '0.63rem', color: '#B4A0B8', textAlign: 'center', marginTop: '2px' }}>{st.sub}</div>
               </div>
               {i < steps.length - 1 && (
-                <div style={{ flex: 1, height: '2px', background: steps[i]?.done ? '#22A447' : '#E5D0EB', borderRadius: '2px', margin: '17px 4px 0' }} />
+                <div className="mm-onboarding-step-line" style={{ flex: 1, height: '2px', background: steps[i]?.done ? '#22A447' : '#E5D0EB', borderRadius: '2px', margin: '17px 4px 0', minWidth: '8px' }} />
               )}
             </React.Fragment>
           ))}
@@ -903,7 +903,7 @@ export function PartnerOnboardingPaymentPage() {
           </div>
 
         ) : s?.verification_status === 'suspended' ? (
-          <div style={{ ...cardStyle, textAlign: 'center', padding: '40px 24px' }}>
+          <div className="mm-onboarding-card" style={{ ...cardStyle, textAlign: 'center', padding: '40px 24px' }}>
             <XCircle size={52} color="#DC2626" style={{ marginBottom: '14px' }} />
             <h2 style={{ color: '#4A154B' }}>Account Suspended</h2>
             <p style={{ color: '#756572' }}>Please contact support for resolution.</p>
@@ -912,15 +912,15 @@ export function PartnerOnboardingPaymentPage() {
 
         ) : nextStep === 'pay_registration' ? (
           /* == STEP 1: Pay ₹99 == */
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+          <div className="mm-onboarding-card" style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
               <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg,#4A154B,#611E63)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <User size={22} color="#FFF" />
               </div>
-              <div>
+              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                 <h2 style={{ margin: 0, color: '#4A154B', fontSize: '1.15rem', fontWeight: '700' }}>Step 1 -- Registration Fee</h2>
                 <p style={{ margin: '2px 0 0', color: '#756572', fontSize: '0.85rem' }}>Create your counsellor profile on MAANMITRA</p>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#D8B36A', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: '3px' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#D8B36A', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: '3px', wordBreak: 'break-word' }}>
                   ⭐ POWERED BY DESTINATION POINT (<a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#D8B36A' }}>destinationpoint.org</a>)
                 </div>
               </div>
@@ -977,7 +977,7 @@ export function PartnerOnboardingPaymentPage() {
               </div>
             </div>
 
-            <div style={cardStyle}>
+            <div className="mm-onboarding-card" style={cardStyle}>
               <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
                 <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#F3E8FF,#E9D5FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                   <Video size={32} color="#7C3AED" />
@@ -1041,7 +1041,7 @@ export function PartnerOnboardingPaymentPage() {
               </div>
             </div>
 
-            <div style={cardStyle}>
+            <div className="mm-onboarding-card" style={cardStyle}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                 <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Video size={22} color="#FFF" />
@@ -1120,7 +1120,7 @@ export function PartnerOnboardingPaymentPage() {
               </div>
             </div>
 
-            <div style={cardStyle}>
+            <div className="mm-onboarding-card" style={cardStyle}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                 <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg,#E91E63,#D81B60)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Zap size={22} color="#FFF" />
@@ -1169,7 +1169,7 @@ export function PartnerOnboardingPaymentPage() {
 
         ) : (
           /* == Done == */
-          <div style={{ ...cardStyle, textAlign: 'center', padding: '44px 32px' }}>
+          <div className="mm-onboarding-card" style={{ ...cardStyle, textAlign: 'center', padding: '44px 32px' }}>
             <BadgeCheck size={64} color="#22A447" style={{ marginBottom: '14px' }} />
             <h2 style={{ color: '#4A154B', marginBottom: '8px' }}>You Are Activated!</h2>
             <p style={{ color: '#756572', maxWidth: '400px', margin: '0 auto 24px' }}>

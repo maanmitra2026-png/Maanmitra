@@ -122,9 +122,10 @@ export default function PublicNavbar() {
         </a>
       </div>
 
-      <div style={{ padding: '8px 16px' }}>
+      <div className="mm-navbar-pill-wrapper" style={{ padding: '8px 16px' }}>
         {/* Floating Pill Container */}
         <div
+          className="mm-navbar-floating-pill"
           style={{
             maxWidth: '1280px',
             width: '95%',
@@ -644,8 +645,7 @@ export default function PublicNavbar() {
             border: 'none',
             color: '#50164F',
             cursor: 'pointer',
-            padding: '6px',
-            display: 'none'
+            padding: '6px'
           }}
         >
           <Menu size={24} />
@@ -673,6 +673,7 @@ export default function PublicNavbar() {
               top: 0,
               right: 0,
               bottom: 0,
+              maxWidth: '85vw',
               width: '320px',
               background: '#FFFFFF',
               zIndex: 1002,
@@ -890,6 +891,9 @@ export default function PublicNavbar() {
         .mm-header-nav-link span {
           transition: color 0.2s ease;
         }
+        .mm-mobile-menu-toggle {
+          display: none;
+        }
         @media (max-width: 1280px) {
           .mm-nav-desktop-only { gap: 4px !important; }
           .mm-header-nav-link { padding: 5px 8px !important; font-size: 0.80rem !important; }
@@ -898,7 +902,20 @@ export default function PublicNavbar() {
         }
         @media (max-width: 1140px) {
           .mm-nav-desktop-only { display: none !important; }
-          .mm-mobile-menu-toggle { display: block !important; }
+          .mm-mobile-menu-toggle { display: flex !important; align-items: center; justify-content: center; }
+          .mm-navbar-floating-pill {
+            height: 56px !important;
+            padding: 4px 14px !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .mm-navbar-pill-wrapper {
+            padding: 4px 8px !important;
+          }
+          .mm-navbar-floating-pill {
+            height: 52px !important;
+            padding: 4px 10px !important;
+          }
         }
       `}</style>
     </header>
