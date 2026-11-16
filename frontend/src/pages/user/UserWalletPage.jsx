@@ -139,9 +139,7 @@ export default function UserWalletPage() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            razorpay_order_id: orderData.order_id,
-            razorpay_payment_id: 'cf_paid',
-            razorpay_signature: 'cashfree_verified',
+            order_id: orderData.order_id,
             amount_inr: activeAmount,
             gateway: 'cashfree'
           })

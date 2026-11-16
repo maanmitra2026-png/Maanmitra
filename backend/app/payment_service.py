@@ -27,8 +27,8 @@ class PaymentGatewayService:
 
     @staticmethod
     def get_credentials() -> Tuple[str, str, str]:
-        key_id = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-        key_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+        key_id = os.getenv("RAZORPAY_KEY_ID", "")
+        key_secret = os.getenv("RAZORPAY_KEY_SECRET", "")
         webhook_secret = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
         return key_id, key_secret, webhook_secret
 
@@ -161,20 +161,28 @@ class PaymentGatewayService:
         secret_bytes = key_secret.encode("utf-8")
         expected_signature = hmac.new(secret_bytes, msg, hashlib.sha256).hexdigest()
 
-        # Constant-time comparison
-        if hmac.compare_digest(expected_signature, signature):
-            return True
-
-        # Cashfree verification
-        if signature.startswith("cf_") or signature == "cashfree_verified":
-            from app.cashfree_service import CashfreeGatewayService
-            cf_status = CashfreeGatewayService.get_order_status(order_id)
-            if cf_status.get("is_paid") or cf_status.get("is_mock"):
+        # Constant-time comparison for HMAC signature if provided
+        if signature and key_secret:
+            msg = f"{order_id}|{payment_id}".encode("utf-8")
+            secret_bytes = key_secret.encode("utf-8")
+            expected_signature = hmac.new(secret_bytes, msg, hashlib.sha256).hexdigest()
+            if hmac.compare_digest(expected_signature, signature):
                 return True
 
         # In mock or automated test mode, allow test signature format
         if (not cls.is_live_configured() or os.getenv("TESTING", "").lower() == "true") and signature.startswith("sig_mock_"):
             return True
+
+        # If an explicit signature was provided and not recognized as cashfree or mock, reject it
+        if signature and not signature.startswith("cf_") and signature != "cashfree_verified" and not signature.startswith("sig_mock_"):
+            return False
+
+        # Cashfree verification
+        if not signature or signature.startswith("cf_") or signature == "cashfree_verified":
+            from app.cashfree_service import CashfreeGatewayService
+            cf_status = CashfreeGatewayService.get_order_status(order_id)
+            if cf_status.get("is_paid") or cf_status.get("is_mock"):
+                return True
 
         return False
 

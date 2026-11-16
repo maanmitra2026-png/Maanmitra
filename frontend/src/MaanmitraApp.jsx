@@ -249,7 +249,7 @@ export default function MaanmitraApp() {
     try {
       setTimeout(() => {
         setLoading(false);
-        showToast('Payment of ₹' + (selectedPackage?.price || 299) + ' Verified Successfully via Razorpay!');
+        showToast('Payment of ₹' + (selectedPackage?.price || 299) + ' Verified Successfully via Cashfree!');
         setCurrentScreen('call_screen');
         setCallActive(true);
       }, 1200);
@@ -1007,7 +1007,7 @@ function AdminDashboardScreen({ adminStats }) {
             <DollarSign size={20} color="#22A447" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>Payment Received via Razorpay</div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 700 }}>Payment Received via Cashfree</div>
             <div style={{ fontSize: '0.74rem', color: 'var(--mm-text-muted)' }}>15 mins ago - Transaction ID #MM-TXN-82910</div>
           </div>
           <span className="mm-pill-badge" style={{ background: '#EAF8EE', color: '#22A447' }}>Captured</span>
@@ -1280,7 +1280,7 @@ function AdminPaymentsScreen() {
           </thead>
           <tbody>
             {[
-              { id: 'MM-ORD-9182', name: 'Amit Kumar', method: 'Razorpay UPI', gross: 499, share: 399, comm: 100 },
+              { id: 'MM-ORD-9182', name: 'Amit Kumar', method: 'Cashfree UPI', gross: 499, share: 399, comm: 100 },
               { id: 'MM-ORD-9183', name: 'Rahul Sharma', method: 'Credit Card', gross: 299, share: 239, comm: 60 },
               { id: 'MM-ORD-9184', name: 'Suresh Patil', method: 'Net Banking', gross: 299, share: 239, comm: 60 }
             ].map(t => (
@@ -1868,7 +1868,7 @@ function UserPaymentScreen({ selectedPartner, selectedPackage, handleProcessPaym
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-        {['Razorpay (UPI, Cards, Wallet)', 'Credit / Debit Card', 'UPI (GPay, PhonePe, Paytm)', 'Net Banking'].map((m, idx) => (
+        {['Cashfree (UPI, Cards, Wallet)', 'Credit / Debit Card', 'UPI (GPay, PhonePe, Paytm)', 'Net Banking'].map((m, idx) => (
           <label key={idx} className="mm-card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
             <input type="radio" name="payMethod" defaultChecked={idx === 0} />
             <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{m}</span>
@@ -1877,7 +1877,7 @@ function UserPaymentScreen({ selectedPartner, selectedPackage, handleProcessPaym
       </div>
 
       <button className="mm-btn-primary" onClick={handleProcessPayment} disabled={loading}>
-        {loading ? 'Verifying with Razorpay...' : `Pay ₹${pkg.price}`}
+        {loading ? 'Processing payment...' : `Pay ₹${pkg.price}`}
       </button>
     </div>
   );

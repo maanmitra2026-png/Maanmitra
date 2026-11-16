@@ -505,7 +505,7 @@ def create_registration_order(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Create Razorpay order for ₹99 registration fee."""
+    """Create Cashfree order for ₹99 registration fee."""
     if user.role != "maanmitra_partner":
         raise HTTPException(status_code=403, detail="Partner access only")
 
@@ -556,67 +556,7 @@ def create_registration_order(
             if gateway_pref == "cashfree":
                 raise HTTPException(status_code=502, detail=f"Cashfree order creation error: {str(cfe)}. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY in server environment.")
 
-    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    try:
-        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-        b64_auth = base64.b64encode(auth_str.encode()).decode()
-        headers = {
-            "Authorization": f"Basic {b64_auth}",
-            "Content-Type": "application/json"
-        }
-        rzp_data = {
-            "amount": amount_paise,
-            "currency": "INR",
-            "receipt": order_ref,
-            "notes": {"purpose": "maanmitra_registration", "partner_id": str(profile.id), "user_id": str(user.id)}
-        }
-        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
-        if res.status_code in [200, 201]:
-            rz_order = res.json()
-            plink_url = None
-            try:
-                plink_payload = {
-                    "amount": amount_paise,
-                    "currency": "INR",
-                    "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
-                    "customer": {
-                        "name": user.full_name or "Maanmitra Partner",
-                        "email": user.email,
-                        "contact": getattr(user, "phone", "") or "9876543210"
-                    },
-                    "notify": {"sms": False, "email": False},
-                    "notes": {"purpose": "maanmitra_registration", "partner_id": str(profile.id), "user_id": str(user.id)},
-                    "callback_url": "https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding",
-                    "callback_method": "get"
-                }
-                plink_res = requests.post("https://api.razorpay.com/v1/payment_links", json=plink_payload, headers=headers, timeout=5)
-                if plink_res.status_code in [200, 201]:
-                    plink_url = plink_res.json().get("short_url")
-            except Exception as pe:
-                logger.warning(f"Could not create hosted payment link: {pe}")
-
-            return {
-                "id": rz_order["id"],
-                "order_id": rz_order["id"],
-                "amount": amount_paise,
-                "currency": "INR",
-                "receipt": order_ref,
-                "razorpay_key": RAZORPAY_KEY,
-                "purpose": "registration",
-                "description": "Maanmitra Partner Registration Fee (₹99 one-time)",
-                "payment_link_url": plink_url,
-                "is_mock": False
-            }
-        else:
-            logger.error(f"Razorpay registration order failed: {res.text}")
-            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay registration order: {res.text}")
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error calling Razorpay for registration order: {e}")
-        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 
 @router.post("/partner/onboarding/verify-registration-payment")
@@ -645,7 +585,7 @@ def verify_registration_payment(
     gateway = payload.get("gateway", "").lower()
     is_mock = payload.get("is_mock", False)
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
     payment_verified = False
 
     # 1. Cashfree verification
@@ -717,7 +657,7 @@ def create_activation_order(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Create Razorpay order for ₹499 training & activation fee."""
+    """Create Cashfree order for ₹499 training & activation fee."""
     if user.role != "maanmitra_partner":
         raise HTTPException(status_code=403, detail="Partner access only")
 
@@ -774,67 +714,7 @@ def create_activation_order(
             if gateway_pref == "cashfree":
                 raise HTTPException(status_code=502, detail=f"Cashfree order creation error: {str(cfe)}. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY in server environment.")
 
-    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    try:
-        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-        b64_auth = base64.b64encode(auth_str.encode()).decode()
-        headers = {
-            "Authorization": f"Basic {b64_auth}",
-            "Content-Type": "application/json"
-        }
-        rzp_data = {
-            "amount": amount_paise,
-            "currency": "INR",
-            "receipt": order_ref,
-            "notes": {"purpose": "maanmitra_activation", "partner_id": str(profile.id), "user_id": str(user.id)}
-        }
-        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
-        if res.status_code in [200, 201]:
-            rz_order = res.json()
-            plink_url = None
-            try:
-                plink_payload = {
-                    "amount": amount_paise,
-                    "currency": "INR",
-                    "description": "Maanmitra Training & Profile Activation Fee (₹499)",
-                    "customer": {
-                        "name": user.full_name or "Maanmitra Partner",
-                        "email": user.email,
-                        "contact": getattr(user, "phone", "") or "9876543210"
-                    },
-                    "notify": {"sms": False, "email": False},
-                    "notes": {"purpose": "maanmitra_activation", "partner_id": str(profile.id), "user_id": str(user.id)},
-                    "callback_url": "https://maanmitra-frontend-pk5h.onrender.com/partner/onboarding",
-                    "callback_method": "get"
-                }
-                plink_res = requests.post("https://api.razorpay.com/v1/payment_links", json=plink_payload, headers=headers, timeout=5)
-                if plink_res.status_code in [200, 201]:
-                    plink_url = plink_res.json().get("short_url")
-            except Exception as pe:
-                logger.warning(f"Could not create hosted activation payment link: {pe}")
-
-            return {
-                "id": rz_order["id"],
-                "order_id": rz_order["id"],
-                "amount": amount_paise,
-                "currency": "INR",
-                "receipt": order_ref,
-                "razorpay_key": RAZORPAY_KEY,
-                "purpose": "activation",
-                "description": "Maanmitra Training & Profile Activation Fee (₹499)",
-                "payment_link_url": plink_url,
-                "is_mock": False
-            }
-        else:
-            logger.error(f"Razorpay activation order failed: {res.text}")
-            raise HTTPException(status_code=502, detail=f"Failed to create Razorpay activation order: {res.text}")
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error calling Razorpay for activation order: {e}")
-        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 
 @router.post("/partner/onboarding/verify-activation-payment")
@@ -869,7 +749,7 @@ def verify_activation_payment(
     gateway = payload.get("gateway", "").lower()
     is_mock = payload.get("is_mock", False)
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
     payment_verified = False
 
     # 1. Cashfree verification
@@ -2710,49 +2590,7 @@ def create_user_subscription_order(user: User = Depends(get_current_user), db: S
             if gateway_pref == "cashfree":
                 raise HTTPException(status_code=502, detail=f"Cashfree subscription order creation error: {str(cfe)}")
 
-    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
 
-    try:
-        auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-        b64_auth = base64.b64encode(auth_str.encode()).decode()
-        headers = {
-            "Authorization": f"Basic {b64_auth}",
-            "Content-Type": "application/json"
-        }
-        rzp_data = {
-            "amount": USER_SUBSCRIPTION_FEE_INR * 100,
-            "currency": "INR",
-            "receipt": order_ref,
-            "notes": {"user_id": str(user.id), "type": "user_subscription"}
-        }
-        res = requests.post("https://api.razorpay.com/v1/orders", json=rzp_data, headers=headers, timeout=10)
-        if res.status_code in [200, 201]:
-            rz_order = res.json()
-            sub = UserSubscription(
-                user_id=user.id,
-                amount_inr=USER_SUBSCRIPTION_FEE_INR,
-                razorpay_order_id=rz_order["id"],
-                status="pending"
-            )
-            db.add(sub)
-            db.commit()
-            return {
-                "id": rz_order["id"],
-                "order_id": rz_order["id"],
-                "amount": rz_order["amount"],
-                "currency": rz_order["currency"],
-                "razorpay_key": RAZORPAY_KEY,
-                "is_mock": False
-            }
-        else:
-            logger.error(f"Razorpay subscription order failed: {res.text}")
-            raise HTTPException(status_code=502, detail=f"Failed to create subscription order: {res.text}")
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error creating user subscription order: {e}")
-        raise HTTPException(status_code=502, detail=f"Gateway communication error: {str(e)}")
 
 @router.post("/user/subscription/verify-payment")
 def verify_user_subscription_payment(payload: dict = Body(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -2779,7 +2617,7 @@ def verify_user_subscription_payment(payload: dict = Body(...), user: User = Dep
 
     # 2. Razorpay verification
     if not payment_verified and razorpay_payment_id and razorpay_order_id and razorpay_signature:
-        RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+        RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
         try:
             sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
@@ -2909,73 +2747,28 @@ def create_wallet_topup_order(payload: UserWalletTopupOrderIn, user: User = Depe
             if gateway_pref == "cashfree":
                 raise HTTPException(status_code=502, detail=f"Cashfree wallet top-up error: {str(cfe)}")
 
-    RAZORPAY_KEY = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
-
-    order_id = None
-    if RAZORPAY_KEY and RAZORPAY_SECRET and not RAZORPAY_KEY.startswith("test_dummy"):
-        try:
-            auth_str = f"{RAZORPAY_KEY}:{RAZORPAY_SECRET}"
-            b64_auth = base64.b64encode(auth_str.encode()).decode()
-            headers = {
-                "Authorization": f"Basic {b64_auth}",
-                "Content-Type": "application/json"
-            }
-            receipt_id = f"wt_{user.id}_{int(datetime.utcnow().timestamp())}"
-            data = {
-                "amount": amount_paise,
-                "currency": "INR",
-                "receipt": receipt_id,
-                "notes": {
-                    "user_id": str(user.id),
-                    "user_name": user.full_name or "",
-                    "purpose": "Wallet Top-Up",
-                    "amount_inr": str(amount_inr)
-                }
-            }
-            res = requests.post("https://api.razorpay.com/v1/orders", json=data, headers=headers, timeout=10)
-            if res.status_code in [200, 201]:
-                order_data = res.json()
-                order_id = order_data.get("id")
-            else:
-                logger.error(f"Razorpay wallet topup order creation failed: {res.text}")
-        except Exception as e:
-            logger.error(f"Error calling Razorpay for wallet topup: {str(e)}")
-
-    if not order_id:
-        raise HTTPException(status_code=502, detail="Failed to initialize Razorpay wallet top-up order.")
-
-    return {
-        "order_id": order_id,
-        "amount": amount_paise,
-        "amount_inr": amount_inr,
-        "currency": "INR",
-        "key_id": RAZORPAY_KEY,
-        "user_name": user.full_name or "Maanmitra Member",
-        "user_email": user.email,
-        "user_phone": getattr(user, "phone", "") or ""
-    }
+    raise HTTPException(status_code=502, detail="Cashfree wallet top-up order creation failed. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY in server environment.")
 
 
 @router.post("/user/wallet/verify-topup")
 def verify_wallet_topup(payload: UserWalletVerifyTopupIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Verify Razorpay payment signature and credit funds to user wallet."""
+    """Verify Cashfree payment and credit funds to user wallet."""
     amount_inr = payload.amount_inr
-    razorpay_order_id = payload.razorpay_order_id
-    razorpay_payment_id = payload.razorpay_payment_id
-    razorpay_signature = payload.razorpay_signature
+    order_id = payload.order_id or payload.razorpay_order_id or ""
+    razorpay_payment_id = payload.razorpay_payment_id or ""
+    razorpay_signature = payload.razorpay_signature or ""
 
-    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+    RAZORPAY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
     payment_verified = False
 
-    if razorpay_order_id.startswith("order_mock_") or getattr(payload, "gateway", "") == "cashfree" or not razorpay_signature:
+    if getattr(payload, "gateway", "") == "cashfree" or not razorpay_signature or order_id.startswith("order_mock_"):
         from app.cashfree_service import CashfreeGatewayService
-        cf_res = CashfreeGatewayService.get_order_status(razorpay_order_id)
+        cf_res = CashfreeGatewayService.get_order_status(order_id)
         if cf_res.get("is_paid") or cf_res.get("is_mock"):
             payment_verified = True
-    elif RAZORPAY_SECRET and razorpay_payment_id and razorpay_order_id and razorpay_signature:
+    elif RAZORPAY_SECRET and razorpay_payment_id and order_id and razorpay_signature:
         try:
-            sig_data = f"{razorpay_order_id}|{razorpay_payment_id}"
+            sig_data = f"{order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
                 RAZORPAY_SECRET.encode("utf-8"),
                 sig_data.encode("utf-8"),
@@ -3447,7 +3240,7 @@ def complete_booking(
 
 
 # ==============================================================================
-# 5. PAYMENTS (RAZORPAY INTEGRATION)
+# 5. PAYMENTS (CASHFREE INTEGRATION)
 # ==============================================================================
 
 @router.post("/payments/create-order")
@@ -3489,46 +3282,11 @@ def create_payment_order(
             if gateway_pref == "cashfree":
                 raise HTTPException(status_code=502, detail=f"Cashfree booking payment order error: {str(cfe)}")
 
-    # Razorpay fallback / credentials
-    razorpay_key = os.getenv("RAZORPAY_KEY_ID", "rzp_live_TwgPINXkMnFaPI")
-    razorpay_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
-
-    if not order_id and razorpay_key and razorpay_secret:
-        try:
-            auth_str = f"{razorpay_key}:{razorpay_secret}"
-            b64_auth = base64.b64encode(auth_str.encode()).decode()
-            headers = {
-                "Authorization": f"Basic {b64_auth}",
-                "Content-Type": "application/json"
-            }
-            receipt_id = f"bk_{booking.id}_{int(datetime.utcnow().timestamp())}"
-            data = {
-                "amount": amount_paise,
-                "currency": "INR",
-                "receipt": receipt_id,
-                "notes": {
-                    "booking_id": str(booking.id),
-                    "booking_code": booking.booking_code,
-                    "user_id": str(user.id),
-                    "partner_id": str(booking.partner_id),
-                    "user_name": user.full_name or "Maanmitra Member",
-                    "purpose": f"Session with {booking.partner.display_name if booking.partner else 'Companion'}"
-                }
-            }
-            res = requests.post("https://api.razorpay.com/v1/orders", json=data, headers=headers, timeout=10)
-            if res.status_code in [200, 201]:
-                order_data = res.json()
-                order_id = order_data.get("id")
-            else:
-                logger.error(f"Razorpay booking order creation error: {res.text}")
-        except Exception as e:
-            logger.error(f"Error calling Razorpay API for booking order: {str(e)}")
-
     if not order_id:
-        if os.getenv("TESTING", "").lower() in ("true", "1") or not RAZORPAY_KEY_ID:
+        if os.getenv("TESTING", "").lower() in ("true", "1"):
             order_id = f"order_test_{uuid.uuid4().hex[:16]}"
         else:
-            raise HTTPException(status_code=502, detail="Failed to initialize Razorpay payment order for booking.")
+            raise HTTPException(status_code=502, detail="Cashfree booking payment order creation failed. Please check CASHFREE_APP_ID and CASHFREE_SECRET_KEY.")
 
     # Record Payment in DB
     payment = db.query(Payment).filter_by(booking_id=booking.id).first()
@@ -3536,12 +3294,12 @@ def create_payment_order(
         payment = Payment(
             booking_id=booking.id,
             user_id=user.id,
-            provider="razorpay",
+            provider="cashfree",
             provider_order_id=order_id,
             amount=amount_inr,
             currency="INR",
             payment_status="created",
-            payment_method="Razorpay (UPI/Card/Netbanking)"
+            payment_method="Cashfree (UPI/Card/Netbanking)"
         )
         db.add(payment)
     else:
@@ -3558,7 +3316,7 @@ def create_payment_order(
         "amount": amount_paise,
         "amount_inr": amount_inr,
         "currency": "INR",
-        "key_id": razorpay_key,
+        "key_id": "",
         "booking_code": booking.booking_code,
         "partner_name": booking.partner.display_name if booking.partner else "Companion",
         "user_name": user.full_name or "Maanmitra Member",
@@ -3580,34 +3338,41 @@ def verify_payment(
     if not payment:
         raise HTTPException(status_code=404, detail="Payment record not found")
 
-    razorpay_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
+    razorpay_secret = os.getenv("RAZORPAY_KEY_SECRET", "")
+    order_id = payload.order_id or payload.razorpay_order_id or ""
+    razorpay_payment_id = payload.razorpay_payment_id or ""
+    razorpay_signature = payload.razorpay_signature or ""
+    gateway = getattr(payload, "gateway", "") or ("cashfree" if not razorpay_signature else "razorpay")
 
     # Cryptographic HMAC-SHA256 Signature Verification
     signature_valid = False
-    if razorpay_secret and payload.razorpay_order_id and payload.razorpay_payment_id and payload.razorpay_signature:
+    if razorpay_secret and order_id and razorpay_payment_id and razorpay_signature:
         try:
-            sig_data = f"{payload.razorpay_order_id}|{payload.razorpay_payment_id}"
+            sig_data = f"{order_id}|{razorpay_payment_id}"
             expected_sig = hmac.new(
                 razorpay_secret.encode("utf-8"),
                 sig_data.encode("utf-8"),
                 hashlib.sha256
             ).hexdigest()
-            signature_valid = hmac.compare_digest(expected_sig, payload.razorpay_signature)
+            signature_valid = hmac.compare_digest(expected_sig, razorpay_signature)
         except Exception as e:
             logger.error(f"Signature calculation error: {e}")
             signature_valid = False
 
-    # Check for test mode or Cashfree signatures
+    # Check for test mode or Cashfree verification
     if not signature_valid and (
-        payload.razorpay_order_id.startswith("order_mock_") or 
-        payload.razorpay_signature.startswith("sig_mock_") or
-        payload.razorpay_signature in ("test_signature_verified", "cashfree_verified") or
-        not payload.razorpay_signature
+        gateway == "cashfree" or
+        order_id.startswith("order_mock_") or 
+        razorpay_signature.startswith("sig_mock_") or
+        razorpay_signature in ("test_signature_verified", "cashfree_verified") or
+        not razorpay_signature
     ):
         from app.cashfree_service import CashfreeGatewayService
-        cf_res = CashfreeGatewayService.get_order_status(payload.razorpay_order_id)
+        cf_res = CashfreeGatewayService.get_order_status(order_id)
         if cf_res.get("is_paid") or cf_res.get("is_mock"):
             signature_valid = True
+            if not razorpay_payment_id:
+                razorpay_payment_id = cf_res.get("cf_order_id") or f"CF_{order_id}"
 
     if not signature_valid:
         payment.payment_status = "failed"
@@ -3619,8 +3384,8 @@ def verify_payment(
         )
 
     # Update payment record
-    payment.provider_payment_id = payload.razorpay_payment_id
-    payment.provider_signature = payload.razorpay_signature
+    payment.provider_payment_id = razorpay_payment_id or f"CF_{order_id}"
+    payment.provider_signature = razorpay_signature or "cashfree_verified"
     payment.payment_status = "captured"
     payment.verified_at = datetime.utcnow()
 
@@ -3655,8 +3420,8 @@ def verify_payment(
         transaction_type="booking_earning",
         amount_paise=int(partner_net * 100),
         balance_after_paise=int(partner_net * 100),
-        reference_code=payload.razorpay_payment_id,
-        description=f"Session booking {booking.booking_code} payment captured via Razorpay"
+        reference_code=razorpay_payment_id or f"CF_{order_id}",
+        description=f"Session booking {booking.booking_code} payment captured via Cashfree"
     ))
 
     # Audit Log
@@ -3666,8 +3431,8 @@ def verify_payment(
         entity_type="BOOKING",
         entity_id=booking.id,
         metadata_json=json.dumps({
-            "order_id": payload.razorpay_order_id,
-            "payment_id": payload.razorpay_payment_id,
+            "order_id": order_id,
+            "payment_id": razorpay_payment_id or f"CF_{order_id}",
             "amount_inr": booking.total_amount
         })
     ))

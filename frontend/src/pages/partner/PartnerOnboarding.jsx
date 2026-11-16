@@ -731,12 +731,10 @@ export function PartnerOnboardingPaymentPage() {
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
-  // Handle callback return from Cashfree or Razorpay payment
+  // Handle callback return from Cashfree payment redirect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cfOrderId = params.get('order_id');
-    const pId = params.get('razorpay_payment_id');
-    const plinkStatus = params.get('razorpay_payment_link_status');
 
     if (cfOrderId) {
       const verifyUrl = `${API_BASE}/partner/onboarding/verify-registration-payment`;
@@ -747,19 +745,6 @@ export function PartnerOnboardingPaymentPage() {
       }).then(async (r) => {
         if (r.ok) {
           setSuccessMsg('Payment confirmed via Cashfree!');
-          await fetchStatus();
-          setTimeout(() => navigate('/partner/dashboard', { replace: true }), 1000);
-        }
-      }).catch(console.error);
-    } else if (pId && (!plinkStatus || plinkStatus === 'paid')) {
-      const verifyUrl = `${API_BASE}/partner/onboarding/verify-registration-payment`;
-      fetch(verifyUrl, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ razorpay_payment_id: pId })
-      }).then(async (r) => {
-        if (r.ok) {
-          setSuccessMsg('Payment confirmed via Razorpay!');
           await fetchStatus();
           setTimeout(() => navigate('/partner/dashboard', { replace: true }), 1000);
         }
@@ -827,7 +812,6 @@ export function PartnerOnboardingPaymentPage() {
     }
   };
 
-  const doRazorpayPayment = doPayment;
 
   const s = onboardingStatus;
   const nextStep = s?.next_step;

@@ -104,7 +104,7 @@ export default function UpgradeModal({
 
         <div className="upgrade-modal-footer">
           <ShieldCheck size={14} color="var(--brand-gold)" />
-          <span>Secured by Razorpay . 100% money-safe . No automatic surprise fees</span>
+          <span>Secured by Cashfree . 100% money-safe . No automatic surprise fees</span>
         </div>
       </div>
     </div>

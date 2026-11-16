@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE, WS_BASE } from '../../apiConfig';
-import { openRazorpayCheckout } from '../../utils/razorpay';
+import { openCashfreeCheckout } from '../../utils/cashfree';
 
 export default function LiveCallPage() {
   const params = useParams();
@@ -426,7 +426,7 @@ export default function LiveCallPage() {
     }
   };
 
-  // Quick In-Call Top-up via Razorpay
+  // Quick In-Call Top-up via Cashfree
   const handleInCallTopup = async (amount) => {
     setTopupLoading(true);
     try {
@@ -441,45 +441,40 @@ export default function LiveCallPage() {
       if (!orderRes.ok) throw new Error('Order creation failed');
       const orderData = await orderRes.json();
 
-      await openRazorpayCheckout({
-        order_id: orderData.order_id,
-        amount: orderData.amount,
-        name: 'MAANMITRA Wallet Recharge',
-        description: `Top-up ₹${amount} to continue live conversation`,
-        prefill: {
-          name: user?.full_name || '',
-          email: user?.email || '',
-          contact: user?.phone || ''
-        },
-        onSuccess: async (rzpRes) => {
-          const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              razorpay_order_id: rzpRes.razorpay_order_id,
-              razorpay_payment_id: rzpRes.razorpay_payment_id,
-              razorpay_signature: rzpRes.razorpay_signature,
-              amount_inr: amount
-            })
-          });
-          if (verifyRes.ok) {
-            const vData = await verifyRes.json();
-            setUserWalletBalance(vData.wallet_balance_inr);
-            setLowBalanceAlert(false);
-            setTopupModalOpen(false);
-            if (user) {
-              const updated = { ...user, wallet_balance_inr: vData.wallet_balance_inr };
-              setUser(updated);
-              localStorage.setItem('mm_user', JSON.stringify(updated));
-            }
-          }
-        },
-        onDismiss: () => setTopupLoading(false),
-        onError: () => setTopupLoading(false)
+      if (!orderData.payment_session_id) {
+        throw new Error('Cashfree payment session not generated. Please try again.');
+      }
+
+      await openCashfreeCheckout({
+        paymentSessionId: orderData.payment_session_id,
+        mode: orderData.environment || 'production',
+        redirectTarget: '_modal',
       });
+
+      // Verify after Cashfree returns
+      const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          order_id: orderData.order_id,
+          gateway: 'cashfree',
+          amount_inr: amount
+        })
+      });
+      if (verifyRes.ok) {
+        const vData = await verifyRes.json();
+        setUserWalletBalance(vData.wallet_balance_inr);
+        setLowBalanceAlert(false);
+        setTopupModalOpen(false);
+        if (user) {
+          const updated = { ...user, wallet_balance_inr: vData.wallet_balance_inr };
+          setUser(updated);
+          localStorage.setItem('mm_user', JSON.stringify(updated));
+        }
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -1059,7 +1054,7 @@ export default function LiveCallPage() {
             </div>
 
             <div style={{ textAlign: 'center', fontSize: '0.78rem', color: '#8E738A' }}>
-              Secured by Razorpay • UPI QR / Cards / Netbanking
+              Secured by Cashfree • UPI QR / Cards / Netbanking
             </div>
           </div>
         </div>

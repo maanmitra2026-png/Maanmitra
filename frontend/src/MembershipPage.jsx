@@ -308,7 +308,7 @@ export default function MembershipPage({
             Payment History & Invoices
           </h3>
           <p className="section-desc">
-            All transactions are securely verified via Razorpay with encrypted server-side signatures.
+            All transactions are securely verified via Cashfree with encrypted server-side signatures.
           </p>
         </div>
 

@@ -425,7 +425,12 @@ class GuidanceReflectIn(BaseModel):
 class TicketIn(BaseModel): subject: str = Field(min_length=3, max_length=200); category: str = Field(default="technical", max_length=50); details: str = Field(min_length=3, max_length=2000)
 class PrivacyIn(BaseModel): discoverable: bool; show_age: bool; show_online: bool
 class CheckoutIn(BaseModel): plan_code: str = Field(..., pattern="^(BASIC|PREMIUM)$")
-class VerifyIn(BaseModel): razorpay_order_id: str; razorpay_payment_id: str; razorpay_signature: str
+class VerifyIn(BaseModel):
+    order_id: Optional[str] = None
+    gateway: Optional[str] = "cashfree"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 class AiGuidanceIn(BaseModel): topic: str = Field(default="general", max_length=100); query: str = Field(min_length=3, max_length=1000); partner_interests: Optional[str] = Field(default="", max_length=500)
 class ContentIn(BaseModel): title: str = Field(min_length=3, max_length=255); category: str = Field(default="relationship_guidance", max_length=50); access_level: str = Field(default="FREE", pattern="^(FREE|PREMIUM)$"); summary: str = Field(min_length=5, max_length=500); body: str = Field(min_length=10); image_url: str = Field(default="", max_length=500); author_name: str = Field(default="MANMITRA Editorial", max_length=120); read_time_minutes: int = Field(default=5, ge=1, le=120)
 class ConfigUpdateIn(BaseModel): basic_daily_message_limit: Optional[int] = Field(default=None, ge=1, le=1000); premium_daily_message_limit: Optional[int] = Field(default=None, ge=1, le=5000); basic_ai_daily_limit: Optional[int] = Field(default=None, ge=1, le=100); premium_ai_daily_limit: Optional[int] = Field(default=None, ge=1, le=1000); premium_included_counselling_monthly: Optional[int] = Field(default=None, ge=0, le=10)
@@ -1556,12 +1561,15 @@ def verify_subscription(payload: VerifyIn, user: User = Depends(get_current_user
     """
     Verify payment signature server-side and activate subscription immediately upon verified payment.
     """
+    order_id = payload.order_id or payload.razorpay_order_id or ""
+    payment_id = payload.razorpay_payment_id or "cf_paid"
+    signature = payload.razorpay_signature or "cashfree_verified"
     result = PaymentGatewayService.verify_and_activate(
         db=db,
         user_id=user.id,
-        order_id=payload.razorpay_order_id,
-        payment_id=payload.razorpay_payment_id,
-        signature=payload.razorpay_signature
+        order_id=order_id,
+        payment_id=payment_id,
+        signature=signature
     )
     # Refresh entitlements
     result["entitlements"] = SubscriptionEntitlementService.get_entitlements(db, user.id)
@@ -1617,7 +1625,7 @@ async def payment_webhook(request: Request, db: Session = Depends(get_db)):
     return result
 
 # ==============================================================================
-# STANDARD RAZORPAY CHECKOUT ENDPOINTS (GENERIC / FRONTEND INTEGRATION)
+# STANDARD PAYMENT CHECKOUT ENDPOINTS (CASHFREE / GENERIC FRONTEND)
 # ==============================================================================
 
 class GenericCreateOrderIn(BaseModel):
@@ -1627,26 +1635,59 @@ class GenericCreateOrderIn(BaseModel):
     notes: Optional[dict] = None
 
 class GenericVerifyPaymentIn(BaseModel):
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    order_id: Optional[str] = None
+    gateway: Optional[str] = "cashfree"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 @app.post("/api/create-order")
 @app.post("/api/v1/create-order")
 def generic_create_order(payload: GenericCreateOrderIn):
     """
-    Standard Razorpay Order Creation Endpoint
+    Standard Cashfree / Payment Order Creation Endpoint
     POST /api/create-order
     POST /api/v1/create-order
     """
     if payload.amount < 100:
         raise HTTPException(status_code=400, detail="Minimum order amount is 100 paise (1 INR)")
 
+    amount_inr = round(payload.amount / 100.0, 2)
+    order_id = payload.receipt or f"ord_{uuid.uuid4().hex[:12]}"
+
+    gateway_pref = os.getenv("PAYMENT_GATEWAY", "cashfree").strip().lower()
+    from app.cashfree_service import CashfreeGatewayService
+    if gateway_pref == "cashfree" or CashfreeGatewayService.is_live_configured():
+        try:
+            cf_order = CashfreeGatewayService.create_order(
+                order_id=order_id,
+                amount_inr=amount_inr,
+                customer_id=f"cust_{uuid.uuid4().hex[:8]}",
+                customer_name="Maanmitra Customer",
+                customer_email="customer@maanmitra.com",
+                customer_phone="9876543210",
+                order_note="MAANMITRA Order"
+            )
+            return {
+                "order_id": cf_order["order_id"],
+                "payment_session_id": cf_order.get("payment_session_id"),
+                "gateway": "cashfree",
+                "environment": cf_order.get("environment", "production"),
+                "amount": payload.amount,
+                "amount_inr": amount_inr,
+                "currency": "INR",
+                "is_mock": cf_order.get("is_mock", False)
+            }
+        except Exception as cfe:
+            logger.error(f"Cashfree generic order creation failed: {cfe}")
+            if gateway_pref == "cashfree":
+                raise HTTPException(status_code=502, detail=f"Failed to create Cashfree order: {str(cfe)}")
+
     key_id = os.getenv("RAZORPAY_KEY_ID")
     key_secret = os.getenv("RAZORPAY_KEY_SECRET")
 
     if not key_id or not key_secret:
-        raise HTTPException(status_code=500, detail="Razorpay credentials not configured in environment")
+        raise HTTPException(status_code=500, detail="Payment gateway credentials not configured in environment")
 
     try:
         import razorpay as rz
@@ -1654,7 +1695,7 @@ def generic_create_order(payload: GenericCreateOrderIn):
         order_data = {
             "amount": payload.amount,
             "currency": payload.currency or "INR",
-            "receipt": payload.receipt or f"rcpt_{uuid.uuid4().hex[:10]}"
+            "receipt": order_id
         }
         if payload.notes:
             order_data["notes"] = payload.notes
@@ -1666,24 +1707,38 @@ def generic_create_order(payload: GenericCreateOrderIn):
             "key_id": key_id
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create Razorpay order: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create order: {str(e)}")
 
 @app.post("/api/verify-payment")
 @app.post("/api/v1/verify-payment")
 def generic_verify_payment(payload: GenericVerifyPaymentIn):
     """
-    Standard Razorpay Signature Verification Endpoint
+    Standard Payment Verification Endpoint
     POST /api/verify-payment
     POST /api/v1/verify-payment
     """
-    key_secret = os.getenv("RAZORPAY_KEY_SECRET", "q7va1o41GaonSEItKLzKxwnD")
-    if not key_secret:
-        raise HTTPException(status_code=500, detail="Razorpay secret not configured")
+    order_id = payload.order_id or payload.razorpay_order_id or ""
+    gateway = getattr(payload, "gateway", "") or ("cashfree" if not payload.razorpay_signature else "razorpay")
 
-    if not payload.razorpay_order_id or not payload.razorpay_payment_id or not payload.razorpay_signature:
+    if gateway == "cashfree" or not payload.razorpay_signature or order_id.startswith("order_mock_"):
+        from app.cashfree_service import CashfreeGatewayService
+        cf_status = CashfreeGatewayService.get_order_status(order_id)
+        if cf_status.get("is_paid") or cf_status.get("is_mock"):
+            return {
+                "success": True,
+                "message": "Payment verified successfully via Cashfree",
+                "order_id": order_id,
+                "gateway": "cashfree"
+            }
+
+    key_secret = os.getenv("RAZORPAY_KEY_SECRET", "")
+    if not key_secret:
+        raise HTTPException(status_code=500, detail="Payment secret not configured")
+
+    if not order_id or not payload.razorpay_payment_id or not payload.razorpay_signature:
         raise HTTPException(status_code=400, detail="Missing required payment verification fields")
 
-    msg = f"{payload.razorpay_order_id}|{payload.razorpay_payment_id}".encode("utf-8")
+    msg = f"{order_id}|{payload.razorpay_payment_id}".encode("utf-8")
     expected_sig = hmac.new(key_secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
 
     if not hmac.compare_digest(expected_sig, payload.razorpay_signature):
@@ -1693,7 +1748,7 @@ def generic_verify_payment(payload: GenericVerifyPaymentIn):
         "success": True,
         "message": "Payment verified successfully",
         "razorpay_payment_id": payload.razorpay_payment_id,
-        "razorpay_order_id": payload.razorpay_order_id
+        "razorpay_order_id": order_id
     }
 
 # ==============================================================================

@@ -136,9 +136,11 @@ class CreateOrderIn(BaseModel):
 
 class VerifyPaymentIn(BaseModel):
     booking_id: int
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    order_id: Optional[str] = None
+    gateway: Optional[str] = "cashfree"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 class StandardCreateOrderIn(BaseModel):
     amount: int = Field(..., ge=100, description="Amount in paise (minimum 100 paise = 1 INR)")
@@ -147,9 +149,11 @@ class StandardCreateOrderIn(BaseModel):
     notes: Optional[Dict[str, Any]] = None
 
 class StandardVerifyPaymentIn(BaseModel):
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    order_id: Optional[str] = None
+    gateway: Optional[str] = "cashfree"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 class PaymentOut(BaseModel):
     id: int
@@ -358,9 +362,11 @@ class UserWalletTopupOrderIn(BaseModel):
     amount_inr: int = Field(ge=50, le=100000, description="Top-up amount in INR (minimum 50)")
 
 class UserWalletVerifyTopupIn(BaseModel):
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    order_id: Optional[str] = None
+    gateway: Optional[str] = "cashfree"
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
     amount_inr: int = Field(ge=50, le=100000)
 
 class UserWalletDeductIn(BaseModel):

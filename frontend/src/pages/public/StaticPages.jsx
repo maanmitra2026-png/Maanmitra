@@ -573,7 +573,7 @@ export function FAQPage() {
     },
     {
       q: 'How does payment work?',
-      a: 'Payments are processed securely via Razorpay. We support UPI, Credit/Debit cards, and NetBanking. Once payment succeeds, your booking slot is confirmed immediately.'
+      a: 'Payments are processed securely via Cashfree. We support UPI, Credit/Debit cards, and NetBanking. Once payment succeeds, your booking slot is confirmed immediately.'
     },
     {
       q: 'Can I cancel or reschedule a booking?',
@@ -705,7 +705,7 @@ export function TermsPage() {
 
         <div className="mm-content-card" style={{ lineHeight: '1.7' }}>
           <h3>1. Platform Scope &amp; Legal Ownership</h3>
-          <p>MAANMITRA (https://maanmitra-frontend-pk5h.onrender.com) is an authorized digital platform and venture <strong>POWERED AND OPERATED BY DESTINATION POINT</strong> (official corporate portal: <a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mm-primary)', fontWeight: 700 }}>destinationpoint.org</a>). All payment transactions, Razorpay merchant collections, career initiatives, mentorship programmes, and platform compliance are directly operated under Destination Point.</p>
+          <p>MAANMITRA (https://maanmitra-frontend-pk5h.onrender.com) is an authorized digital platform and venture <strong>POWERED AND OPERATED BY DESTINATION POINT</strong> (official corporate portal: <a href="https://destinationpoint.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mm-primary)', fontWeight: 700 }}>destinationpoint.org</a>). All payment transactions, Cashfree merchant collections, career initiatives, mentorship programmes, and platform compliance are directly operated under Destination Point.</p>
 
           <h3 style={{ marginTop: '20px' }}>2. Code of Conduct</h3>
           <p>All members and partners agree to treat each other with dignity, mutual courtesy, and respect. Inappropriate, offensive, sexually explicit, abusive, or threatening remarks result in immediate termination of sessions and permanent account suspension without refund.</p>

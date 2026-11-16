@@ -276,7 +276,7 @@ export default function PricingSection({
           <ShieldCheck size={26} color="var(--brand-gold)" />
         </div>
         <div className="trust-content">
-          <strong>Safe & Encrypted Checkout via Razorpay</strong>
+          <strong>Safe & Encrypted Checkout via Cashfree</strong>
           <p>
             Payments are securely processed using bank-grade 256-bit SSL encryption. We never store card numbers, CVVs, or UPI PINs. No automatic surprise charges or deceptive billing.
           </p>

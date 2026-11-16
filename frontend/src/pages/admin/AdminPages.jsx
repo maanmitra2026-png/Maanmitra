@@ -1058,7 +1058,7 @@ export function AdminPaymentsPage() {
       <div className="mm-dashboard-header">
         <div>
           <h1 className="mm-dashboard-title">Financial Ledger & Payouts</h1>
-          <p className="mm-dashboard-subtitle">Audited Razorpay transactions, partner revenue allocations (70/30), and withdrawal processing</p>
+          <p className="mm-dashboard-subtitle">Audited Cashfree transactions, partner revenue allocations (70/30), and withdrawal processing</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={exportCSV} className="mm-btn-secondary mm-btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

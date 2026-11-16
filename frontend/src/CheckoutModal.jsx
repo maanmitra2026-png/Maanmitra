@@ -9,7 +9,7 @@ import {
   Lock,
   ArrowRight
 } from 'lucide-react';
-import { openRazorpayCheckout, RAZORPAY_KEY_ID } from './utils/razorpay';
+
 
 export default function CheckoutModal({
   checkoutData, // { order_id, amount, currency, key_id, plan_name, plan_code, is_mock }
@@ -32,73 +32,32 @@ export default function CheckoutModal({
       setErrorMsg(null);
 
       // Cashfree Flow
-      if (checkoutData.gateway === 'cashfree' || checkoutData.payment_session_id) {
-        const { openCashfreeCheckout } = await import('./utils/cashfree');
-        await openCashfreeCheckout({
-          paymentSessionId: checkoutData.payment_session_id,
-          mode: checkoutData.environment || 'production',
-          redirectTarget: '_modal'
-        });
-
-        const res = await api('/subscriptions/verify', {
-          method: 'POST',
-          body: {
-            razorpay_order_id: order_id,
-            razorpay_payment_id: 'cf_paid',
-            razorpay_signature: 'cashfree_verified'
-          }
-        });
-        notify(res.message || 'Payment successfully verified! Your subscription is now active.');
-        if (onPaymentSuccess) {
-          onPaymentSuccess(res.subscription);
-        }
-        onClose();
-        return;
+      const { openCashfreeCheckout } = await import('./utils/cashfree');
+      if (!checkoutData.payment_session_id) {
+        throw new Error('Cashfree payment session was not generated.');
       }
+      await openCashfreeCheckout({
+        paymentSessionId: checkoutData.payment_session_id,
+        mode: checkoutData.environment || 'production',
+        redirectTarget: '_modal'
+      });
 
-      await openRazorpayCheckout({
-        key: checkoutData.key_id || RAZORPAY_KEY_ID,
-        order_id,
-        amount,
-        currency: currency || 'INR',
-        name: 'MAANMITRA',
-        description: `Subscription: ${plan_name}`,
-        onSuccess: async (rzpRes) => {
-          try {
-            const res = await api('/subscriptions/verify', {
-              method: 'POST',
-              body: {
-                razorpay_order_id: rzpRes.razorpay_order_id,
-                razorpay_payment_id: rzpRes.razorpay_payment_id,
-                razorpay_signature: rzpRes.razorpay_signature
-              }
-            });
-            notify(res.message || 'Payment successfully verified! Your subscription is now active.');
-            if (onPaymentSuccess) {
-              onPaymentSuccess(res.subscription);
-            }
-            onClose();
-          } catch (err) {
-            setErrorMsg(err.message || 'Payment verification failed.');
-            notify(err.message || 'Payment verification failed', true);
-          } finally {
-            setSubmitting(false);
-          }
-        },
-        onDismiss: () => {
-          setSubmitting(false);
-          setErrorMsg('Payment was cancelled. You can retry when you are ready.');
-        },
-        onError: (err) => {
-          setSubmitting(false);
-          const msg = err?.description || 'Payment was cancelled or unsuccessful.';
-          setErrorMsg(msg);
-          notify(msg, true);
+      const res = await api('/subscriptions/verify', {
+        method: 'POST',
+        body: {
+          order_id: order_id,
+          gateway: 'cashfree'
         }
       });
+      notify(res.message || 'Payment successfully verified! Your subscription is now active.');
+      if (onPaymentSuccess) {
+        onPaymentSuccess(res.subscription);
+      }
+      onClose();
     } catch (err) {
       setErrorMsg(err.message || 'Payment initiation failed.');
       notify(err.message || 'Payment initiation failed', true);
+    } finally {
       setSubmitting(false);
     }
   }
@@ -138,7 +97,7 @@ export default function CheckoutModal({
 
         <div className="checkout-head">
           <div className="upgrade-modal-badge" style={{ background: 'var(--brand-emerald-surface)', color: 'var(--brand-emerald-dark)' }}>
-            <Lock size={13} /> SECURE RAZORPAY CHECKOUT
+            <Lock size={13} /> SECURE CASHFREE CHECKOUT
           </div>
           <h2 style={{ fontSize: '1.45rem', fontWeight: 800, margin: '8px 0 4px', color: 'var(--brand-emerald-dark)' }}>
             Complete Your Subscription

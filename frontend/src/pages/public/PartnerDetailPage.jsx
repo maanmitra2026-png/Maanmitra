@@ -9,7 +9,7 @@ import PublicNavbar from '../../components/layout/PublicNavbar';
 import PublicFooter from '../../components/layout/PublicFooter';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE } from '../../apiConfig';
-import { openRazorpayCheckout } from '../../utils/razorpay';
+import { openCashfreeCheckout } from '../../utils/cashfree';
 
 export default function PartnerDetailPage() {
   const { id } = useParams();
@@ -156,41 +156,38 @@ export default function PartnerDetailPage() {
       if (!orderRes.ok) throw new Error('Order creation failed');
       const orderData = await orderRes.json();
 
-      await openRazorpayCheckout({
-        order_id: orderData.order_id,
-        amount: orderData.amount,
-        name: 'MAANMITRA Wallet Recharge',
-        description: `Top-up ₹${amount} for real-time per-minute calling`,
-        prefill: {
-          name: user?.full_name || '',
-          email: user?.email || '',
-          contact: user?.phone || ''
-        },
-        onSuccess: async (rzpRes) => {
-          const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              razorpay_order_id: rzpRes.razorpay_order_id,
-              razorpay_payment_id: rzpRes.razorpay_payment_id,
-              razorpay_signature: rzpRes.razorpay_signature,
-              amount_inr: amount
-            })
-          });
-          if (verifyRes.ok) {
-            const vData = await verifyRes.json();
-            setTopupModalOpen(false);
-            if (user) {
-              user.wallet_balance_inr = vData.wallet_balance_inr;
-            }
-            // Auto start the pending session now that wallet is funded
-            handleStartInstantSession(pendingCommType);
-          }
-        }
+      if (!orderData.payment_session_id) {
+        throw new Error('Cashfree payment session not generated. Please try again.');
+      }
+
+      await openCashfreeCheckout({
+        paymentSessionId: orderData.payment_session_id,
+        mode: orderData.environment || 'production',
+        redirectTarget: '_modal',
       });
+
+      // Verify after Cashfree returns
+      const verifyRes = await fetch(`${API_BASE}/user/wallet/verify-topup`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          order_id: orderData.order_id,
+          gateway: 'cashfree',
+          amount_inr: amount
+        })
+      });
+      if (verifyRes.ok) {
+        const vData = await verifyRes.json();
+        setTopupModalOpen(false);
+        if (user) {
+          user.wallet_balance_inr = vData.wallet_balance_inr;
+        }
+        // Auto start the pending session now that wallet is funded
+        handleStartInstantSession(pendingCommType);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -247,7 +244,7 @@ export default function PartnerDetailPage() {
 
       const bookingData = await res.json();
 
-      // 2. Create Razorpay Payment Order
+      // 2. Create Cashfree Payment Order
       const orderRes = await fetch(`${API_BASE}/payments/create-order`, {
         method: 'POST',
         headers: {
@@ -264,78 +261,45 @@ export default function PartnerDetailPage() {
 
       const orderData = await orderRes.json();
 
-      // 3. Process payment via Razorpay Standard Checkout
-      await openRazorpayCheckout({
-        key: orderData.key_id,
-        order_id: orderData.order_id,
-        amount: orderData.amount, // amount in paise
-        currency: orderData.currency || 'INR',
-        name: 'MAANMITRA',
-        description: `Session Booking with ${partner.display_name}`,
-        prefill: {
-          name: user.full_name || '',
-          email: user.email || '',
-          contact: user.phone || ''
-        },
-        onSuccess: async (rzpResponse) => {
-          setBookingLoading(true);
-          try {
-            const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                booking_id: bookingData.id,
-                razorpay_order_id: rzpResponse.razorpay_order_id,
-                razorpay_payment_id: rzpResponse.razorpay_payment_id,
-                razorpay_signature: rzpResponse.razorpay_signature
-              })
-            });
+      if (!orderData.payment_session_id) {
+        throw new Error('Cashfree payment session not generated. Please try again.');
+      }
 
-            const verifyData = await verifyRes.json();
-            if (verifyRes.ok) {
-              setSuccessMsg('Payment Successful & Booking Confirmed! Redirecting to your dashboard...');
-              setTimeout(() => navigate('/user/bookings'), 1500);
-            } else {
-              setErrorMsg(verifyData.detail || 'Payment verification failed. Please contact support.');
-            }
-          } catch (vErr) {
-            setErrorMsg('Network error verifying payment. Please check your bookings page.');
-          } finally {
-            setBookingLoading(false);
-          }
-        },
-        onDismiss: async () => {
-          setBookingLoading(false);
-          setErrorMsg('Payment cancelled. Your booking was not completed.');
-          try {
-            await fetch(`${API_BASE}/payments/mark-failed`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ booking_id: bookingData.id, reason: 'cancelled_by_user' })
-            });
-          } catch (_) {}
-        },
-        onError: async (payErr) => {
-          setBookingLoading(false);
-          setErrorMsg(payErr?.description || 'Payment failed. Please try with another payment method.');
-          try {
-            await fetch(`${API_BASE}/payments/mark-failed`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ booking_id: bookingData.id, reason: payErr?.description || 'gateway_failure' })
-            });
-          } catch (_) {}
-        }
+      // 3. Process payment via Cashfree Checkout
+      await openCashfreeCheckout({
+        paymentSessionId: orderData.payment_session_id,
+        mode: orderData.environment || 'production',
+        redirectTarget: '_modal',
       });
+
+      // 4. Verify payment
+      setBookingLoading(true);
+      try {
+        const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            booking_id: bookingData.id,
+            order_id: orderData.order_id,
+            gateway: 'cashfree'
+          })
+        });
+
+        const verifyData = await verifyRes.json();
+        if (verifyRes.ok) {
+          setSuccessMsg('Payment Successful & Booking Confirmed! Redirecting to your dashboard...');
+          setTimeout(() => navigate('/user/bookings'), 1500);
+        } else {
+          setErrorMsg(verifyData.detail || 'Payment verification failed. Please contact support.');
+        }
+      } catch (vErr) {
+        setErrorMsg('Network error verifying payment. Please check your bookings page.');
+      } finally {
+        setBookingLoading(false);
+      }
 
     } catch (err) {
       setErrorMsg(err.message || 'Booking process failed. Please try again.');
@@ -669,7 +633,7 @@ export default function PartnerDetailPage() {
                     ))}
                   </div>
                   <div style={{ textAlign: 'center', fontSize: '0.78rem', color: '#8E738A' }}>
-                    Secured by Razorpay • UPI QR / GPay / PhonePe / Cards
+                    Secured by Cashfree • UPI QR / GPay / PhonePe / Cards
                   </div>
                 </div>
               </div>
@@ -803,7 +767,7 @@ export default function PartnerDetailPage() {
                 </button>
 
                 <p className="mm-secure-badge">
-                  <ShieldCheck size={14} color="var(--mm-success)" /> 100% Private & Encrypted Payments via Razorpay
+                  <ShieldCheck size={14} color="var(--mm-success)" /> 100% Private & Encrypted Payments via Cashfree
                 </p>
               </form>
             </div>
