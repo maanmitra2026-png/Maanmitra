@@ -37,7 +37,11 @@ export default function LoginPage() {
           navigate('/partner/status', { replace: true });
         }
       } else {
-        navigate('/user/dashboard', { replace: true });
+        if (!user.subscription_paid) {
+          navigate('/user/subscribe', { replace: true });
+        } else {
+          navigate('/user/dashboard', { replace: true });
+        }
       }
     }
   }, [user, navigate, redirectPath]);
@@ -64,7 +68,11 @@ export default function LoginPage() {
           navigate('/partner/status');
         }
       } else {
-        navigate('/user/dashboard');
+        if (!userInfo.subscription_paid) {
+          navigate('/user/subscribe');
+        } else {
+          navigate('/user/dashboard');
+        }
       }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid email or password');

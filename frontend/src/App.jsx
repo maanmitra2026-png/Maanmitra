@@ -150,6 +150,10 @@ function RequireAuth({ children, role, allowPending = false }) {
       if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
       if (user.role === 'maanmitra_partner') return <Navigate to="/partner/dashboard" replace />;
     }
+    // Enforce membership fee payment: redirect to /user/subscribe if subscription not paid
+    if (!allowPending && !user.subscription_paid) {
+      return <Navigate to="/user/subscribe" replace />;
+    }
   }
 
   return children;
@@ -517,7 +521,7 @@ export default function App() {
             </RequireAuth>
           } />
           <Route path="/user/subscription" element={
-            <RequireAuth role="user">
+            <RequireAuth role="user" allowPending={true}>
               <UserSubscriptionStatusPage />
             </RequireAuth>
           } />

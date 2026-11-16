@@ -17,6 +17,7 @@ export default function RegisterPage() {
     if (user) {
       if (user.role === 'admin') navigate('/admin/dashboard', { replace: true });
       else if (user.role === 'maanmitra_partner') navigate('/partner/dashboard', { replace: true });
+      else if (!user.subscription_paid) navigate('/user/subscribe', { replace: true });
       else navigate('/user/dashboard', { replace: true });
     }
   }, [user, navigate]);
@@ -63,8 +64,8 @@ export default function RegisterPage() {
         password: pwd
       });
 
-      // Redirect to Member Dashboard
-      navigate('/user/dashboard');
+      // Redirect to Member Subscription Payment
+      navigate('/user/subscribe');
     } catch (err) {
       setErrorMsg(err.message || 'Registration failed');
     } finally {
