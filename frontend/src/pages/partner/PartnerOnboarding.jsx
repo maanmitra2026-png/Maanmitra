@@ -205,6 +205,7 @@ export function PartnerRegisterPage() {
         rate_video_30m: 499
       });
       navigate('/partner/onboarding');
+      window.scrollTo(0, 0);
     } catch (err) {
       setErrorMsg(err.message || 'Partner registration failed. Please check your details and try again.');
     } finally {
@@ -728,6 +729,10 @@ export function PartnerOnboardingPaymentPage() {
       setLoading(false);
     }
   }, [token, user, setUser, navigate]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
