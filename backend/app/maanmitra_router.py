@@ -2796,7 +2796,7 @@ def verify_wallet_topup(payload: UserWalletVerifyTopupIn, user: User = Depends(g
         transaction_type="topup",
         amount_inr=amount_inr,
         balance_after_inr=new_balance,
-        razorpay_order_id=razorpay_order_id,
+        razorpay_order_id=order_id,
         razorpay_payment_id=razorpay_payment_id,
         description=f"Wallet Top-Up of ₹{amount_inr}"
     )
