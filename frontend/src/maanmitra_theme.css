@@ -6211,42 +6211,21 @@ img, svg, video, canvas {
   display: none;
 }
 
-@media (max-width: 1400px) {
-  .mm-nav-desktop-badge {
-    display: none !important;
-  }
+@media (max-width: 1280px) {
   .mm-nav-links-bar {
-    gap: 3px !important;
+    gap: 4px !important;
   }
   .mm-header-nav-link {
-    padding: 4px 8px !important;
-    font-size: 0.80rem !important;
-  }
-  .mm-header-btn-access {
-    padding: 5px 12px !important;
-    font-size: 0.80rem !important;
-  }
-  .mm-header-btn-login {
-    padding: 4px 10px !important;
-    font-size: 0.80rem !important;
-  }
-}
-
-@media (max-width: 1260px) {
-  .mm-nav-links-bar {
-    gap: 2px !important;
-  }
-  .mm-header-nav-link {
-    padding: 4px 6px !important;
-    font-size: 0.77rem !important;
-  }
-  .mm-header-btn-access {
     padding: 5px 10px !important;
-    font-size: 0.77rem !important;
+    font-size: 0.82rem !important;
+  }
+  .mm-header-btn-access {
+    padding: 6px 14px !important;
+    font-size: 0.82rem !important;
   }
   .mm-header-btn-login {
-    padding: 4px 8px !important;
-    font-size: 0.77rem !important;
+    padding: 5px 12px !important;
+    font-size: 0.82rem !important;
   }
 }
 

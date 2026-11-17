@@ -127,8 +127,8 @@ export default function PublicNavbar() {
         <div
           className="mm-navbar-floating-pill"
           style={{
-            maxWidth: '1440px',
-            width: '96%',
+            maxWidth: '1360px',
+            width: '95%',
             margin: '0 auto',
             background: '#FFFFFF',
             borderRadius: '9999px',
@@ -136,8 +136,8 @@ export default function PublicNavbar() {
             boxShadow: scrolled
               ? '0 10px 30px rgba(80, 22, 79, 0.10)'
               : '0 4px 20px rgba(80, 22, 79, 0.05)',
-            padding: '4px 14px 4px 16px',
-            height: '58px',
+            padding: '4px 14px 4px 18px',
+            height: '60px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -146,47 +146,26 @@ export default function PublicNavbar() {
             boxSizing: 'border-box',
           }}
         >
-          {/* 1. Brand Logo + Powered by Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-            <Link
-              to="/"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                flexShrink: 0
-              }}
-              aria-label="MAANMITRA Home"
-            >
-              <MaanmitraOriginalLogo height={36} />
-            </Link>
-            <div
-              className="mm-nav-desktop-only mm-nav-desktop-badge"
-              style={{
-                background: '#FFF9F5',
-                border: '1.5px solid #D8B36A',
-                borderRadius: '8px',
-                padding: '3px 8px',
-                display: 'flex',
-                flexDirection: 'column',
-                lineHeight: 1.15
-              }}
-            >
-              <span style={{ fontSize: '0.58rem', color: '#665365', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Initiative
-              </span>
-              <span style={{ fontSize: '0.74rem', color: '#50164F', fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                POWERED BY DESTINATION POINT
-              </span>
-            </div>
-          </div>
+          {/* 1. Brand Logo */}
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              flexShrink: 0
+            }}
+            aria-label="MAANMITRA Home"
+          >
+            <MaanmitraOriginalLogo height={38} />
+          </Link>
 
         {/* 2. Desktop Navigation Links */}
         <nav
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
+            gap: '6px',
             flexShrink: 1,
             minWidth: 0,
             justifyContent: 'center'
@@ -217,9 +196,9 @@ export default function PublicNavbar() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '5px 10px',
+                      padding: '6px 14px',
                       borderRadius: '9999px',
-                      fontSize: '0.82rem',
+                      fontSize: '0.85rem',
                       fontWeight: (active || servicesDropdownOpen) ? 600 : 500,
                       color: '#50164F',
                       background: servicesDropdownOpen ? '#FDF2F8' : (active ? '#FDF2F8' : 'transparent'),
@@ -241,22 +220,6 @@ export default function PublicNavbar() {
                       }}
                     />
                   </Link>
-
-                  {/* Indicator notch underneath Services when active/open */}
-                  {servicesDropdownOpen && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: '-7px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '20px',
-                        height: '2.5px',
-                        background: '#D8B36A',
-                        borderRadius: '2px',
-                      }}
-                    />
-                  )}
 
                   {/* 8-Service Mega-Menu Dropdown */}
                   {servicesDropdownOpen && (
@@ -452,9 +415,9 @@ export default function PublicNavbar() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: active ? '5px 12px' : '5px 9px',
+                    padding: active ? '6px 14px' : '6px 12px',
                     borderRadius: '9999px',
-                    fontSize: '0.82rem',
+                    fontSize: '0.85rem',
                     fontWeight: active ? 600 : 500,
                     color: active ? '#FFFFFF' : '#50164F',
                     background: active ? '#50164F' : 'transparent',
@@ -475,29 +438,14 @@ export default function PublicNavbar() {
                     {link.label}
                   </span>
                 </Link>
-
-                {/* Subtle Indicator Notch for Home */}
-                {active && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-7px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '18px',
-                      height: '2.5px',
-                      background: '#D8B36A',
-                      borderRadius: '2px',
-                    }}
-                  />
-                )}
               </div>
             );
           })}
         </nav>
 
         {/* 3. Desktop Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, marginLeft: 'auto' }} className="mm-nav-desktop-only mm-nav-actions-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: 'auto' }} className="mm-nav-desktop-only mm-nav-actions-bar">
+          <div style={{ width: '1px', height: '22px', background: '#F0DCE8', margin: '0 6px 0 10px', flexShrink: 0 }} />
           {/* Circular Search Icon */}
           <Link
             to="/counselling"
@@ -505,8 +453,8 @@ export default function PublicNavbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               color: '#50164F',
               textDecoration: 'none',
@@ -521,7 +469,7 @@ export default function PublicNavbar() {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#50164F'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#EEDBCF'; }}
           >
-            <Search size={14} />
+            <Search size={15} />
           </Link>
 
           {/* User Auth or Login Pill */}
@@ -896,18 +844,11 @@ export default function PublicNavbar() {
         .mm-mobile-menu-toggle {
           display: none;
         }
-        @media (max-width: 1400px) {
-          .mm-nav-desktop-badge { display: none !important; }
-          .mm-nav-links-bar { gap: 3px !important; }
-          .mm-header-nav-link { padding: 4px 8px !important; font-size: 0.80rem !important; }
-          .mm-header-btn-access { padding: 5px 12px !important; font-size: 0.80rem !important; }
-          .mm-header-btn-login { padding: 4px 10px !important; font-size: 0.80rem !important; }
-        }
-        @media (max-width: 1260px) {
-          .mm-nav-links-bar { gap: 2px !important; }
-          .mm-header-nav-link { padding: 4px 6px !important; font-size: 0.77rem !important; }
-          .mm-header-btn-access { padding: 5px 10px !important; font-size: 0.77rem !important; }
-          .mm-header-btn-login { padding: 4px 8px !important; font-size: 0.77rem !important; }
+        @media (max-width: 1280px) {
+          .mm-nav-links-bar { gap: 4px !important; }
+          .mm-header-nav-link { padding: 5px 10px !important; font-size: 0.82rem !important; }
+          .mm-header-btn-access { padding: 6px 14px !important; font-size: 0.82rem !important; }
+          .mm-header-btn-login { padding: 5px 12px !important; font-size: 0.82rem !important; }
         }
         @media (max-width: 1160px) {
           .mm-nav-desktop-only { display: none !important; }
