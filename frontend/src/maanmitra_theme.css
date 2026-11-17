@@ -6211,7 +6211,46 @@ img, svg, video, canvas {
   display: none;
 }
 
-@media (max-width: 1140px) {
+@media (max-width: 1400px) {
+  .mm-nav-desktop-badge {
+    display: none !important;
+  }
+  .mm-nav-links-bar {
+    gap: 3px !important;
+  }
+  .mm-header-nav-link {
+    padding: 4px 8px !important;
+    font-size: 0.80rem !important;
+  }
+  .mm-header-btn-access {
+    padding: 5px 12px !important;
+    font-size: 0.80rem !important;
+  }
+  .mm-header-btn-login {
+    padding: 4px 10px !important;
+    font-size: 0.80rem !important;
+  }
+}
+
+@media (max-width: 1260px) {
+  .mm-nav-links-bar {
+    gap: 2px !important;
+  }
+  .mm-header-nav-link {
+    padding: 4px 6px !important;
+    font-size: 0.77rem !important;
+  }
+  .mm-header-btn-access {
+    padding: 5px 10px !important;
+    font-size: 0.77rem !important;
+  }
+  .mm-header-btn-login {
+    padding: 4px 8px !important;
+    font-size: 0.77rem !important;
+  }
+}
+
+@media (max-width: 1160px) {
   .mm-nav-desktop-only,
   .mm-nav-links-desktop,
   .mm-nav-actions-desktop {
@@ -6223,8 +6262,8 @@ img, svg, video, canvas {
     justify-content: center;
   }
   .mm-navbar-floating-pill {
-    height: 56px !important;
-    padding: 4px 14px !important;
+    height: 54px !important;
+    padding: 4px 12px !important;
   }
 }
 
@@ -6233,7 +6272,7 @@ img, svg, video, canvas {
     padding: 4px 8px !important;
   }
   .mm-navbar-floating-pill {
-    height: 52px !important;
+    height: 50px !important;
     padding: 4px 10px !important;
     border-radius: 9999px !important;
     width: 100% !important;

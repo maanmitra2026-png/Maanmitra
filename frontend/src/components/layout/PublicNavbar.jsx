@@ -127,8 +127,8 @@ export default function PublicNavbar() {
         <div
           className="mm-navbar-floating-pill"
           style={{
-            maxWidth: '1280px',
-            width: '95%',
+            maxWidth: '1440px',
+            width: '96%',
             margin: '0 auto',
             background: '#FFFFFF',
             borderRadius: '9999px',
@@ -136,8 +136,8 @@ export default function PublicNavbar() {
             boxShadow: scrolled
               ? '0 10px 30px rgba(80, 22, 79, 0.10)'
               : '0 4px 20px rgba(80, 22, 79, 0.05)',
-            padding: '6px 16px 6px 20px',
-            height: '64px',
+            padding: '4px 14px 4px 16px',
+            height: '58px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -147,7 +147,7 @@ export default function PublicNavbar() {
           }}
         >
           {/* 1. Brand Logo + Powered by Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <Link
               to="/"
               style={{
@@ -158,10 +158,10 @@ export default function PublicNavbar() {
               }}
               aria-label="MAANMITRA Home"
             >
-              <MaanmitraOriginalLogo height={38} />
+              <MaanmitraOriginalLogo height={36} />
             </Link>
             <div
-              className="mm-nav-desktop-only"
+              className="mm-nav-desktop-only mm-nav-desktop-badge"
               style={{
                 background: '#FFF9F5',
                 border: '1.5px solid #D8B36A',
@@ -186,10 +186,12 @@ export default function PublicNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            flexShrink: 0,
+            gap: '4px',
+            flexShrink: 1,
+            minWidth: 0,
+            justifyContent: 'center'
           }}
-          className="mm-nav-desktop-only"
+          className="mm-nav-desktop-only mm-nav-links-bar"
         >
           {navLinks.map((link) => {
             const active = isActive(link.path);
@@ -215,9 +217,9 @@ export default function PublicNavbar() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '6px 12px',
+                      padding: '5px 10px',
                       borderRadius: '9999px',
-                      fontSize: '0.84rem',
+                      fontSize: '0.82rem',
                       fontWeight: (active || servicesDropdownOpen) ? 600 : 500,
                       color: '#50164F',
                       background: servicesDropdownOpen ? '#FDF2F8' : (active ? '#FDF2F8' : 'transparent'),
@@ -450,9 +452,9 @@ export default function PublicNavbar() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: active ? '6px 16px' : '6px 12px',
+                    padding: active ? '5px 12px' : '5px 9px',
                     borderRadius: '9999px',
-                    fontSize: '0.84rem',
+                    fontSize: '0.82rem',
                     fontWeight: active ? 600 : 500,
                     color: active ? '#FFFFFF' : '#50164F',
                     background: active ? '#50164F' : 'transparent',
@@ -495,7 +497,7 @@ export default function PublicNavbar() {
         </nav>
 
         {/* 3. Desktop Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }} className="mm-nav-desktop-only">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, marginLeft: 'auto' }} className="mm-nav-desktop-only mm-nav-actions-bar">
           {/* Circular Search Icon */}
           <Link
             to="/counselling"
@@ -503,8 +505,8 @@ export default function PublicNavbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '36px',
-              height: '36px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               color: '#50164F',
               textDecoration: 'none',
@@ -519,7 +521,7 @@ export default function PublicNavbar() {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#50164F'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#EEDBCF'; }}
           >
-            <Search size={15} />
+            <Search size={14} />
           </Link>
 
           {/* User Auth or Login Pill */}
@@ -576,10 +578,10 @@ export default function PublicNavbar() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
-                padding: '6px 16px',
+                gap: '4px',
+                padding: '5px 14px',
                 borderRadius: '9999px',
-                fontSize: '0.85rem',
+                fontSize: '0.82rem',
                 fontWeight: 600,
                 color: '#50164F',
                 border: '1.5px solid #50164F',
@@ -607,10 +609,10 @@ export default function PublicNavbar() {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '7px 18px',
+              gap: '5px',
+              padding: '6px 14px',
               borderRadius: '9999px',
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               fontWeight: 700,
               color: '#FFFFFF',
               background: '#50164F',
@@ -894,18 +896,25 @@ export default function PublicNavbar() {
         .mm-mobile-menu-toggle {
           display: none;
         }
-        @media (max-width: 1280px) {
-          .mm-nav-desktop-only { gap: 4px !important; }
-          .mm-header-nav-link { padding: 5px 8px !important; font-size: 0.80rem !important; }
-          .mm-header-btn-access { padding: 6px 14px !important; font-size: 0.80rem !important; }
-          .mm-header-btn-login { padding: 5px 12px !important; font-size: 0.80rem !important; }
+        @media (max-width: 1400px) {
+          .mm-nav-desktop-badge { display: none !important; }
+          .mm-nav-links-bar { gap: 3px !important; }
+          .mm-header-nav-link { padding: 4px 8px !important; font-size: 0.80rem !important; }
+          .mm-header-btn-access { padding: 5px 12px !important; font-size: 0.80rem !important; }
+          .mm-header-btn-login { padding: 4px 10px !important; font-size: 0.80rem !important; }
         }
-        @media (max-width: 1140px) {
+        @media (max-width: 1260px) {
+          .mm-nav-links-bar { gap: 2px !important; }
+          .mm-header-nav-link { padding: 4px 6px !important; font-size: 0.77rem !important; }
+          .mm-header-btn-access { padding: 5px 10px !important; font-size: 0.77rem !important; }
+          .mm-header-btn-login { padding: 4px 8px !important; font-size: 0.77rem !important; }
+        }
+        @media (max-width: 1160px) {
           .mm-nav-desktop-only { display: none !important; }
           .mm-mobile-menu-toggle { display: flex !important; align-items: center; justify-content: center; }
           .mm-navbar-floating-pill {
-            height: 56px !important;
-            padding: 4px 14px !important;
+            height: 54px !important;
+            padding: 4px 12px !important;
           }
         }
         @media (max-width: 640px) {
@@ -913,7 +922,7 @@ export default function PublicNavbar() {
             padding: 4px 8px !important;
           }
           .mm-navbar-floating-pill {
-            height: 52px !important;
+            height: 50px !important;
             padding: 4px 10px !important;
           }
         }
