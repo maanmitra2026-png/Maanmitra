@@ -149,11 +149,13 @@ export default function PublicNavbar() {
           {/* 1. Brand Logo */}
           <Link
             to="/"
+            className="mm-header-brand-link"
             style={{
               display: 'flex',
               alignItems: 'center',
               textDecoration: 'none',
-              flexShrink: 0
+              flexShrink: 0,
+              marginRight: '36px'
             }}
             aria-label="MAANMITRA Home"
           >
@@ -165,9 +167,9 @@ export default function PublicNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            flexShrink: 1,
-            minWidth: 0,
+            gap: '8px',
+            margin: '0 auto',
+            flexShrink: 0,
             justifyContent: 'center'
           }}
           className="mm-nav-desktop-only mm-nav-links-bar"
@@ -444,8 +446,8 @@ export default function PublicNavbar() {
         </nav>
 
         {/* 3. Desktop Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: 'auto' }} className="mm-nav-desktop-only mm-nav-actions-bar">
-          <div style={{ width: '1px', height: '22px', background: '#F0DCE8', margin: '0 6px 0 10px', flexShrink: 0 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: '36px' }} className="mm-nav-desktop-only mm-nav-actions-bar">
+          <div style={{ width: '1px', height: '24px', background: '#F0DCE8', margin: '0 6px 0 0', flexShrink: 0 }} />
           {/* Circular Search Icon */}
           <Link
             to="/counselling"
@@ -845,10 +847,12 @@ export default function PublicNavbar() {
           display: none;
         }
         @media (max-width: 1280px) {
+          .mm-header-brand-link { margin-right: 18px !important; }
+          .mm-nav-actions-bar { margin-left: 18px !important; }
           .mm-nav-links-bar { gap: 4px !important; }
-          .mm-header-nav-link { padding: 5px 10px !important; font-size: 0.82rem !important; }
-          .mm-header-btn-access { padding: 6px 14px !important; font-size: 0.82rem !important; }
-          .mm-header-btn-login { padding: 5px 12px !important; font-size: 0.82rem !important; }
+          .mm-header-nav-link { padding: 5px 9px !important; font-size: 0.81rem !important; }
+          .mm-header-btn-access { padding: 6px 14px !important; font-size: 0.81rem !important; }
+          .mm-header-btn-login { padding: 5px 12px !important; font-size: 0.81rem !important; }
         }
         @media (max-width: 1160px) {
           .mm-nav-desktop-only { display: none !important; }
