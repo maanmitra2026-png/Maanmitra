@@ -6188,7 +6188,7 @@ img, svg, video, canvas {
 }
 
 /* Universal collapse of wide minmax columns on mobile */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   div[style*="minmax(340px"],
   div[style*="minmax(320px"],
   div[style*="minmax(300px"],
@@ -6199,7 +6199,20 @@ img, svg, video, canvas {
   div[style*="minmax(240px"],
   div[style*="minmax(215px"],
   div[style*="minmax(210px"],
-  div[style*="minmax(180px"] {
+  div[style*="minmax(180px"],
+  section[style*="minmax(340px"],
+  section[style*="minmax(320px"],
+  section[style*="minmax(300px"],
+  section[style*="minmax(280px"],
+  section[style*="minmax(270px"],
+  section[style*="minmax(260px"],
+  section[style*="minmax(250px"],
+  section[style*="minmax(240px"],
+  section[style*="minmax(215px"],
+  section[style*="minmax(210px"],
+  section[style*="minmax(180px"],
+  main[style*="minmax("],
+  article[style*="minmax("] {
     grid-template-columns: 1fr !important;
   }
 }
@@ -6449,4 +6462,99 @@ img, svg, video, canvas {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==========================================================================
+   HOMEPAGE & PLATFORM PASS BANNER RESPONSIVENESS (<= 900px, <= 768px, <= 480px)
+   ========================================================================== */
+.mm-platform-pass-card {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+.mm-platform-pass-item {
+  min-width: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .mm-platform-pass-card {
+    padding: 26px 24px !important;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .mm-hero-grid {
+    padding: 32px 16px 40px !important;
+    gap: 32px !important;
+    grid-template-columns: 1fr !important;
+  }
+  .mm-hero-official-badge {
+    padding: 8px 14px !important;
+    gap: 8px !important;
+  }
+  .mm-hero-values-badge {
+    padding: 6px 12px !important;
+    gap: 6px !important;
+    font-size: 0.70rem !important;
+  }
+  .mm-platform-pass-section {
+    margin: 32px auto !important;
+    padding: 0 16px !important;
+  }
+  .mm-platform-pass-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 24px 18px !important;
+    border-radius: 20px !important;
+    gap: 20px !important;
+  }
+  .mm-platform-pass-header {
+    width: 100% !important;
+    gap: 14px !important;
+  }
+  .mm-platform-pass-title {
+    font-size: 1.25rem !important;
+  }
+  .mm-platform-pass-checklist {
+    width: 100% !important;
+    padding: 0 !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px 14px !important;
+    justify-content: flex-start !important;
+  }
+  .mm-platform-pass-item {
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 0.88rem !important;
+  }
+  .mm-platform-pass-cta {
+    width: 100% !important;
+  }
+  .mm-platform-pass-btn {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mm-platform-pass-section {
+    padding: 0 12px !important;
+    margin: 24px auto !important;
+  }
+  .mm-platform-pass-card {
+    padding: 20px 14px !important;
+    border-radius: 16px !important;
+    gap: 16px !important;
+  }
+  .mm-platform-pass-checklist {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .mm-platform-pass-title {
+    font-size: 1.15rem !important;
+  }
+}
+
 

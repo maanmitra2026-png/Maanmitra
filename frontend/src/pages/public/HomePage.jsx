@@ -145,7 +145,7 @@ export default function HomePage() {
         {/* =========================================================
             2. HOMEPAGE HERO SECTION (SECTION 5)
             ========================================================= */}
-        <section style={{
+        <section className="mm-hero-grid" style={{
           padding: '40px 20px 60px',
           maxWidth: '1280px',
           margin: '0 auto',
@@ -157,7 +157,7 @@ export default function HomePage() {
           {/* Left Hero Content */}
           <div>
             {/* BIG PROMINENT POWERED BY DESTINATION POINT BADGE */}
-            <div style={{
+            <div className="mm-hero-official-badge" style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '10px',
@@ -168,13 +168,15 @@ export default function HomePage() {
               border: '2px solid #D8B36A',
               marginBottom: '18px',
               boxShadow: '0 4px 16px rgba(80, 22, 79, 0.15)',
-              flexWrap: 'wrap'
+              flexWrap: 'wrap',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
             }}>
               <span style={{ fontSize: '0.80rem', fontWeight: 800, letterSpacing: '0.08em', color: '#D8B36A', textTransform: 'uppercase' }}>
                 OFFICIAL PLATFORM
               </span>
               <span style={{ color: '#D8B36A' }}>•</span>
-              <span style={{ fontSize: '1.05rem', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 'clamp(0.85rem, 3.2vw, 1.05rem)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                 POWERED BY DESTINATION POINT
               </span>
               <a
@@ -193,7 +195,7 @@ export default function HomePage() {
               </a>
             </div>
 
-            <div style={{
+            <div className="mm-hero-values-badge" style={{
               alignItems: 'center',
               gap: '8px',
               padding: '6px 16px',
@@ -207,7 +209,10 @@ export default function HomePage() {
               textTransform: 'uppercase',
               marginBottom: '20px',
               boxShadow: '0 2px 8px rgba(80, 22, 79, 0.04)',
-              display: 'inline-flex'
+              display: 'inline-flex',
+              flexWrap: 'wrap',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
             }}>
               <span>MEANINGFUL CONNECTIONS</span>
               <span style={{ color: '#D8B36A', margin: '0 6px' }}>|</span>
@@ -1256,8 +1261,8 @@ export default function HomePage() {
         {/* =========================================================
             7. PLATFORM ACCESS PASS BANNER (SECTION 11)
             ========================================================= */}
-        <section style={{ maxWidth: '1240px', margin: '50px auto', padding: '0 20px' }}>
-          <div style={{
+        <section className="mm-platform-pass-section" style={{ maxWidth: '1240px', margin: '50px auto', padding: '0 20px' }}>
+          <div className="mm-platform-pass-card" style={{
             background: 'linear-gradient(135deg, #50164F 0%, #6E1A6D 100%)',
             borderRadius: '26px',
             padding: '32px 40px',
@@ -1272,7 +1277,7 @@ export default function HomePage() {
             overflow: 'hidden'
           }}>
             {/* Left: Crown & Title */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+            <div className="mm-platform-pass-header" style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
               <div style={{
                 width: '52px',
                 height: '52px',
@@ -1289,14 +1294,14 @@ export default function HomePage() {
                 <div style={{ fontSize: '0.78rem', color: '#D8B36A', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   Entry-Level Platform Access
                 </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, lineHeight: 1.2 }}>
+                <div className="mm-platform-pass-title" style={{ fontSize: '1.4rem', fontWeight: 800, lineHeight: 1.2 }}>
                   MAANMITRA Platform Access Pass
                 </div>
               </div>
             </div>
 
             {/* Middle: Checklist */}
-            <div style={{
+            <div className="mm-platform-pass-checklist" style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, auto)',
               gap: '10px 28px',
@@ -1311,17 +1316,18 @@ export default function HomePage() {
                 'Book Sessions',
                 'Guidance & Resources'
               ].map((feat, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
-                  <CheckCircle2 size={16} color="#D8B36A" />
+                <div key={i} className="mm-platform-pass-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle2 size={16} color="#D8B36A" style={{ flexShrink: 0 }} />
                   <span>{feat}</span>
                 </div>
               ))}
             </div>
 
             {/* CTA */}
-            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div className="mm-platform-pass-cta" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               <Link
                 to="/user/subscribe"
+                className="mm-platform-pass-btn"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -1334,7 +1340,6 @@ export default function HomePage() {
                   fontSize: '0.96rem',
                   textDecoration: 'none',
                   boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
-                  whiteSpace: 'nowrap',
                   transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
