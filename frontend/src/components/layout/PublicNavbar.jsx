@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Menu, X, User, LogOut, Search, ChevronDown, ArrowRight,
@@ -71,6 +72,7 @@ export default function PublicNavbar() {
 
   return (
     <header
+      className="mm-public-header"
       style={{
         position: 'sticky',
         top: 0,
@@ -80,6 +82,7 @@ export default function PublicNavbar() {
         transition: 'all 0.25s ease',
         background: scrolled ? 'rgba(255, 249, 245, 0.98)' : 'transparent',
         backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'none',
       }}
       role="banner"
     >
@@ -605,8 +608,8 @@ export default function PublicNavbar() {
         </div>
       </div>
 
-      {/* 5. Mobile Slide-in Drawer */}
-      {mobileMenuOpen && (
+      {/* 5. Mobile Slide-in Drawer (Portal to document.body for sticky/overflow immunity) */}
+      {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
         <>
           <div
             className="mm-mobile-backdrop"
@@ -615,11 +618,14 @@ export default function PublicNavbar() {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0,0,0,0.5)',
-              zIndex: 1001
+              background: 'rgba(0, 0, 0, 0.55)',
+              backdropFilter: 'blur(3px)',
+              WebkitBackdropFilter: 'blur(3px)',
+              zIndex: 99998
             }}
           />
           <aside
+            className="mm-mobile-drawer"
             style={{
               position: 'fixed',
               top: 0,
@@ -627,13 +633,16 @@ export default function PublicNavbar() {
               bottom: 0,
               maxWidth: '85vw',
               width: '320px',
+              height: '100vh',
               background: '#FFFFFF',
-              zIndex: 1002,
-              padding: '24px',
+              zIndex: 99999,
+              padding: '24px 20px',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '-4px 0 24px rgba(0,0,0,0.15)',
-              overflowY: 'auto'
+              boxShadow: '-6px 0 32px rgba(80, 22, 79, 0.22)',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              boxSizing: 'border-box'
             }}
             aria-label="Mobile Navigation"
           >
@@ -643,10 +652,21 @@ export default function PublicNavbar() {
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                style={{ background: 'transparent', border: 'none', color: '#50164F', cursor: 'pointer' }}
+                style={{
+                  background: '#FDF2F8',
+                  border: '1px solid #F0DCE8',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#50164F',
+                  cursor: 'pointer'
+                }}
                 aria-label="Close menu"
               >
-                <X size={22} />
+                <X size={20} />
               </button>
             </div>
 
@@ -832,7 +852,8 @@ export default function PublicNavbar() {
               </Link>
             </div>
           </aside>
-        </>
+        </>,
+        document.body
       )}
 
       {/* Responsive CSS for Header */}

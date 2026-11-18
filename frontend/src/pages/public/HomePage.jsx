@@ -137,7 +137,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div style={{ background: '#FFF9F5', minHeight: '100vh', fontFamily: "'Outfit', 'Poppins', sans-serif", color: '#2D162C', overflowX: 'hidden' }}>
+    <div style={{ background: '#FFF9F5', minHeight: '100vh', fontFamily: "'Outfit', 'Poppins', sans-serif", color: '#2D162C', overflowX: 'clip' }}>
       {/* 1. HEADER */}
       <PublicNavbar />
 
